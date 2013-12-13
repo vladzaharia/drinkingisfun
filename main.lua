@@ -2,8 +2,10 @@
 local Game			= require("Game")
 
 
-function love.load()
-	Game:start()
+function love.load(args)
+	local config = args[2]
+	assert(config == 'server' or config == 'client')
+	Game:start(config == 'server')
 end
 
 function love.update(dt)

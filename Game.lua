@@ -1,13 +1,16 @@
 
+local socket = require("socket")
+
 local Game = {}
-Game.mouseX = 0
-Game.mouseY = 0
-Game.camX = 0
-Game.camY = 0
 
 
-function Game:start()
-
+function Game:start(isServer)
+	self.isServer = isServer
+	self.mouseX = 0
+	self.mouseY = 0
+	self.camX = 0
+	self.camY = 0
+	self.time = 0
 end
 
 function Game:update(dt)
@@ -15,6 +18,9 @@ function Game:update(dt)
 end
 
 function Game:draw()
+	love.graphics.print(self.isServer and "Server" or "Client", 10, 10)
+	love.graphics.print("Delay: " .. self.time, 10, 30)
+
 	love.graphics.push()
 	love.graphics.translate(-self.camX,-self.camY)
 
