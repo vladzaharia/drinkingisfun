@@ -1,0 +1,49 @@
+module("ClientGame", package.seeall)
+
+local socket = require("socket")
+
+
+function ClientGame:start()
+	self.time = 0
+
+	local address, port = "localhost", GAME_PORT
+	
+	self.udp = socket.udp()
+
+	self.udp:settimeout(3)
+	self.udp:setpeername(address, port)
+	self.udp:send("register")
+end
+
+function ClientGame:update(dt)
+	data, msg = self.udp:receive()
+	-- Check message and reply
+	if data then
+		assert(data == "getinput")
+		self.udp:send("heresinput")
+	else
+		print("Network error, msg=" .. (msg or "none"))
+		assert(false)
+	end
+end
+
+function ClientGame:draw()
+	love.graphics.print("Client", 10, 10)
+
+	love.graphics.push()
+	-- Do drawing here
+	love.graphics.pop()
+end
+
+function ClientGame:key(key, action)
+
+end
+
+function ClientGame:mousePos(x,y)
+	self.mouseX = x
+	self.mouseY = y
+end
+
+function ClientGame:mouse(key, action)
+	
+end

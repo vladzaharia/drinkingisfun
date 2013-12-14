@@ -1,11 +1,18 @@
 
-local Game			= require("Game")
+local ServerGame			= require("ServerGame")
+local ClientGame			= require("ClientGame")
+
+local Game = nil
+
+GAME_PORT = 12345
 
 
 function love.load(args)
 	local config = args[2]
-	assert(config == 'server' or config == 'client')
-	Game:start(config == 'server')
+	assert(config == "server" or config == "client")
+	local isServer = (config == "server")
+	Game = isServer and ServerGame or ClientGame
+	Game:start()
 end
 
 function love.update(dt)
