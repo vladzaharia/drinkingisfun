@@ -22,7 +22,7 @@ function ServerGame:start()
 end
 
 function ServerGame:update(dt)
-	local time = love.timer.getMicroTime()
+	local time = love.timer.getTime()
 	self.udp:sendto("getinput", self.ip, self.port)
 	
 	local data, ip, port
@@ -36,11 +36,11 @@ function ServerGame:update(dt)
 		assert(false)
 	end
 
-	self.time = self.time * 0.9 + (love.timer.getMicroTime() - time) * 0.1
+	self.time = self.time * 0.9 + (love.timer.getTime() - time) * 0.1
 end
 
 function ServerGame:draw()
-	love.graphics.print("Server", 10, 10)
+	love.graphics.print("Server: " .. socket.dns.toip(socket.dns.gethostname()), 10, 10)
 	love.graphics.print("Delay: " .. self.time, 10, 30)
 
 	love.graphics.push()

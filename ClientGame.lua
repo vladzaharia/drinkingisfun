@@ -28,7 +28,7 @@ function ClientGame:update(dt)
 end
 
 function ClientGame:draw()
-	love.graphics.print("Client", 10, 10)
+	love.graphics.print("Client: " .. socket.dns.toip(socket.dns.gethostname()), 10, 10)
 
 	love.graphics.push()
 	-- Do drawing here
