@@ -1,47 +1,45 @@
 module("ServerGame", package.seeall)
 
-local socket = require("socket")
+local socket 			= require("socket")
 
 
 function ServerGame:start()
-	self.time = 0
-
+	-- Set up our socket
 	self.udp = socket.udp()
-	udp:settimeout(10) -- make udp operations blocking
-	udp:setsockname('*', GAME_PORT)
+	self.udp:settimeout(0) -- We don't want to block at all
+	self.udp:setsockname("*", GAME_PORT)
 
-	local data
-	data, self.ip, self.port = udp:receivefrom()
-	if data then
-		assert(data == "register")
-		print("Got message from client, IP=" .. self.ip .. ", port=" .. self.port)
-	else
-		print("Network error, msg=" .. (self.ip or "none"))
-		assert(false)
-	end
+	-- Where we will store our mapping of clients to game objects
+	self.clients = {}
+end
+
+function ServerGame:stop()
+	self.udp = nil
+	self.clients = nil
 end
 
 function ServerGame:update(dt)
-	local time = love.timer.getTime()
-	self.udp:sendto("getinput", self.ip, self.port)
-	
-	local data, ip, port
-	data, ip, port = self.udp:receivefrom()
-
-	-- Check reply and measure the time difference
-	if data then
-		assert(data == "heresinput")
-	else
-		print("Network error, msg=" .. (self.ip or "none"))
-		assert(false)
+	local data, ip_or_msg, port = self.udp:receivefrom()
+	while data ~= nil do
+		self:handleMessage(ip_or_msg, data)
+		-- Grab next message
+		data, ip_or_msg, port = self.udp:receivefrom()
 	end
-
-	self.time = self.time * 0.9 + (love.timer.getTime() - time) * 0.1
+	-- Last receive should always be a timeout
+	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
 end
 
 function ServerGame:draw()
-	love.graphics.print("Server: " .. socket.dns.toip(socket.dns.gethostname()), 10, 10)
-	love.graphics.print("Delay: " .. self.time, 10, 30)
+	love.graphics.print("Server: " .. socket.dns.toip(socket.dns.gethostname()),
+		10, 10)
+
+	-- Print a list of clients
+	love.graphics.print("Client list:", 10, 30)
+	local y = 50
+	for ip,client in pairs(self.clients) do
+		love.graphics.print(ip, 10, y)
+		y = y + 20
+	end
 
 	love.graphics.push()
 	-- Do drawing here
@@ -53,10 +51,22 @@ function ServerGame:key(key, action)
 end
 
 function ServerGame:mousePos(x,y)
-	self.mouseX = x
-	self.mouseY = y
 end
 
 function ServerGame:mouse(key, action)
 	
+end
+
+function ServerGame:handleMessage(ip, data)
+	if data == "reg" then
+		print("Connected ip=" .. ip)
+		self.clients[ip] = {data=data}
+		-- Send response
+		local result, err = self.udp:sendto("regd", ip, GAME_PORT)
+		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+			(err or "none"))
+	elseif data == "dis" then
+		print("Disconnected ip=" .. ip)
+		self.clients[ip] = nil
+	end
 end

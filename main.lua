@@ -1,43 +1,50 @@
 
-local ServerGame			= require("ServerGame")
-local ClientGame			= require("ClientGame")
-
-local Game = nil
-
+-- Globals - available in all scripts without require
+Keys						= require("Keys")
 GAME_PORT = 12345
+
+local StateManager			= require("StateManager")
+local AttractState			= require("AttractState")
 
 
 function love.load(args)
-	local config = args[2]
-	assert(config == "server" or config == "client")
-	local isServer = (config == "server")
-	Game = isServer and ServerGame or ClientGame
-	Game:start()
+	love.keyboard.setKeyRepeat(true)
+	StateManager:start(AttractState)
+end
+
+function love.quit()
+	StateManager:stop()
+end
+
+function love.focus(f)
 end
 
 function love.update(dt)
-	Game:mousePos(love.mouse.getX(), love.mouse.getY())
-	Game:update(dt)
+	StateManager:mousePos(love.mouse.getX(), love.mouse.getY())
+	StateManager:update(dt)
 end
 
 function love.draw()
-	Game:draw()
+	StateManager:draw()
 end
 
-function love.keypressed(key, unicode)
-	Game:key(key, 'p')
+function love.keypressed(key, isrepeat)
+	if key == Keys.Esc then
+		love.event.quit()
+	end
+	StateManager:key(key, isrepeat and 're' or 'p')
 end
 
-function love.keyreleased(key, unicode)
-	Game:key(key, 'r')
+function love.keyreleased(key)
+	StateManager:key(key, 'r')
 end
 
 function love.mousepressed(x, y, button)
-	Game:mousePos(x,y)
-	Game:mouse(button, 'p')
+	StateManager:mousePos(x,y)
+	StateManager:mouse(button, 'p')
 end
 
 function love.mousereleased(x, y, button)
-	Game:mousePos(x,y)
-	Game:mouse(button, 'r')
+	StateManager:mousePos(x,y)
+	StateManager:mouse(button, 'r')
 end
