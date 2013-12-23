@@ -1,6 +1,7 @@
 module("ClientConnectState", package.seeall)
 
-local socket = require("socket")
+local socket			= require("socket")
+local ClientGameState	= require("ClientGameState")
 
 
 function ClientConnectState:start()
@@ -47,9 +48,13 @@ function ClientConnectState:draw()
 end
 
 function ClientConnectState:key(key, action)
-	if key == Keys.Enter and action == 'p' then 
+	if key == Keys.Enter and action == 'p' then
 		-- send connection request to the entered address
-		self.udp:setpeername(self.enteredText, GAME_PORT)
+		local ip = self.enteredText
+		if ip == "" then
+			ip = "127.0.0.1" -- Default if nothing entered
+		end
+		self.udp:setpeername(ip, GAME_PORT)
 		local result, err = self.udp:send("reg")
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))

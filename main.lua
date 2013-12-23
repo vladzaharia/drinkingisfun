@@ -1,4 +1,7 @@
 
+-- Fixes console output not appearing until after love is closed
+io.stdout:setvbuf("no")
+
 -- Globals - available in all scripts without require
 Keys						= require("Keys")
 GAME_PORT = 12345

@@ -47,20 +47,18 @@ function ServerGame:draw()
 end
 
 function ServerGame:key(key, action)
-
 end
 
 function ServerGame:mousePos(x,y)
 end
 
 function ServerGame:mouse(key, action)
-	
 end
 
 function ServerGame:handleMessage(ip, data)
 	if data == "reg" then
 		print("Connected ip=" .. ip)
-		self.clients[ip] = {data=data}
+		self.clients[ip] = {}
 		-- Send response
 		local result, err = self.udp:sendto("regd", ip, GAME_PORT)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
