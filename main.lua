@@ -4,7 +4,7 @@ io.stdout:setvbuf("no")
 
 -- Globals - available in all scripts without require
 Keys						= require("Keys")
-GAME_PORT = 12345
+SERVER_PORT = 12345
 
 local StateManager			= require("StateManager")
 local AttractState			= require("AttractState")

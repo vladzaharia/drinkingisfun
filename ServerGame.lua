@@ -7,7 +7,7 @@ function ServerGame:start()
 	-- Set up our socket
 	self.udp = socket.udp()
 	self.udp:settimeout(0) -- We don't want to block at all
-	self.udp:setsockname("*", GAME_PORT)
+	self.udp:setsockname("*", SERVER_PORT)
 
 	-- Where we will store our mapping of clients to game objects
 	self.clients = {}
@@ -21,7 +21,7 @@ end
 function ServerGame:update(dt)
 	local data, ip_or_msg, port = self.udp:receivefrom()
 	while data ~= nil do
-		self:handleMessage(ip_or_msg, data)
+		self:handleMessage(ip_or_msg, port, data)
 		-- Grab next message
 		data, ip_or_msg, port = self.udp:receivefrom()
 	end
@@ -55,16 +55,18 @@ end
 function ServerGame:mouse(key, action)
 end
 
-function ServerGame:handleMessage(ip, data)
+function ServerGame:handleMessage(ip, port, data)
 	if data == "reg" then
-		print("Connected ip=" .. ip)
+		print("Connected ip=" .. ip .. " port=" .. port)
 		self.clients[ip] = {}
 		-- Send response
-		local result, err = self.udp:sendto("regd", ip, GAME_PORT)
+		local result, err = self.udp:sendto("regd", ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 	elseif data == "dis" then
-		print("Disconnected ip=" .. ip)
+		print("Disconnected ip=" .. ip .. " port=" .. port)
 		self.clients[ip] = nil
+	else
+		assert(false, "Bad message: " .. data)
 	end
 end

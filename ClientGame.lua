@@ -7,7 +7,7 @@ function ClientGame:start()
 	--[[
 	self.time = 0
 
-	local address, port = "localhost", GAME_PORT
+	local address, port = "localhost", SERVER_PORT
 	
 	self.udp = socket.udp()
 
