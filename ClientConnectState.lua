@@ -62,7 +62,7 @@ function ClientConnectState:key(key, action)
 	elseif action == 're' or action == 'p' then
 		if key == Keys.Backspace then
 			self.enteredText = self.enteredText:sub(1, self.enteredText:len()-1)
-		elseif key:len() == 1  then -- Check if it's a valid input character 
+		elseif Keys.tostring(key):len() == 1 then
 			self.enteredText = self.enteredText .. Keys.tostring(key)
 		end
 	end
