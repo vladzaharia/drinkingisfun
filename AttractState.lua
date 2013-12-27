@@ -8,13 +8,9 @@ function AttractState:start()
 end
 
 function AttractState:stop()
-	self.newState = nil
 end
 
 function AttractState:update(dt)
-	if self.newState then
-		return self.newState
-	end
 end
 
 function AttractState:draw()
@@ -23,9 +19,9 @@ end
 
 function AttractState:key(key, action)
 	if key == "s" then
-		self.newState = ServerGameState
+		return ServerGameState
 	elseif key == "c" then
-		self.newState = ClientConnectState
+		return ClientConnectState
 	end
 end
 

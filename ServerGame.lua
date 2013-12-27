@@ -58,6 +58,8 @@ end
 function ServerGame:handleMessage(ip, port, data)
 	if data == "reg" then
 		print("Connected ip=" .. ip .. " port=" .. port)
+		--[[ TODO: This needs to be selective based on port as well, depending
+		on whether it needs to support multiple clients on a single machine ]]
 		self.clients[ip] = {}
 		-- Send response
 		local result, err = self.udp:sendto("regd", ip, port)

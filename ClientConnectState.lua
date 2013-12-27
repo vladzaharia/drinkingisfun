@@ -16,7 +16,6 @@ end
 function ClientConnectState:stop()
 	-- If connected, send disconnect to server
 	if self.connected then
-		print(sent)
 		local result, err = self.udp:send("dis")
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
