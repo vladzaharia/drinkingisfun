@@ -4,8 +4,8 @@ local ClientGame 			= require("ClientGame")
 
 
 
-function ClientGameState:start()
-	ClientGame:start()
+function ClientGameState:start(args)
+	ClientGame:start(args)
 end
 
 function ClientGameState:stop()

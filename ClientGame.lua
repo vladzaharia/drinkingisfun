@@ -3,36 +3,23 @@ module("ClientGame", package.seeall)
 local socket = require("socket")
 
 
-function ClientGame:start()
-	--[[
-	self.time = 0
-
-	local address, port = "localhost", SERVER_PORT
-	
-	self.udp = socket.udp()
-
-	self.udp:settimeout(3)
-	self.udp:setpeername(address, port)
-	self.udp:send("register")
-	-]]
-end
-
-function ClientGame:update(dt)
-	--[[
-	self.time = 0
-	data, msg = self.udp:receive()
-	-- Check message and reply
-	if data then
-		assert(data == "getinput")
-		self.udp:send("heresinput")
-	else
-		print("Network error, msg=" .. (msg or "none"))
-		assert(false)
-	end
-	--]]
+function ClientGame:start(args)
+	self.pos = args.pos
+	self.udp = args.udp
 end
 
 function ClientGame:stop()
+	--send disconnect to server
+	local result, err = self.udp:send("dis")
+	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+		(err or "none"))
+	
+	self.pos = nil
+	self.udp = nil
+end
+
+function ClientGame:update(dt)
+
 end
 
 function ClientGame:draw()

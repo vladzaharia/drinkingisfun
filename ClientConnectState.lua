@@ -10,30 +10,23 @@ function ClientConnectState:start()
 
 	self.enteredText = ""
 	self.waiting = false
-	self.connected = false
 end
 
 function ClientConnectState:stop()
-	-- If connected, send disconnect to server
-	if self.connected then
-		local result, err = self.udp:send("dis")
-		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
-			(err or "none"))
-	end
-
 	self.udp = nil
 	self.enteredText = nil
 	self.waiting = nil
-	self.connect = nil
 end
 
 function ClientConnectState:update(dt)
 	if self.waiting then
 		local data, msg = self.udp:receive()
-		if data ~= nil then
+		if data and data:match("regd ") ~= 1 then
 			-- Connection established!
 			print("Connected! reponse=" .. data)
-			self.connected = true
+			local x,y = data:match("regd (.+),(.+)")
+			return ClientGameState, { pos = { tonumber(x), tonumber(y) },
+				udp = self.udp }
 		else
 			assert(msg=="timeout", "Unexpected network error, msg=" .. msg)
 		end

@@ -36,8 +36,8 @@ function ServerGame:draw()
 	-- Print a list of clients
 	love.graphics.print("Client list:", 10, 30)
 	local y = 50
-	for ip,client in pairs(self.clients) do
-		love.graphics.print(ip, 10, y)
+	for id,client in pairs(self.clients) do
+		love.graphics.print(id, 10, y)
 		y = y + 20
 	end
 
@@ -58,17 +58,29 @@ end
 function ServerGame:handleMessage(ip, port, data)
 	if data == "reg" then
 		print("Connected ip=" .. ip .. " port=" .. port)
-		--[[ TODO: This needs to be selective based on port as well, depending
-		on whether it needs to support multiple clients on a single machine ]]
-		self.clients[ip] = {}
+		local id = self:getClientId(ip, port)
+		assert(self.clients[id] == nil, "Already connected: " .. id)
+		local client = self:newClient()
+		self.clients[ id ] = client
 		-- Send response
-		local result, err = self.udp:sendto("regd", ip, port)
+		local result, err = self.udp:sendto("regd " .. client.pos[1] .. "," ..
+			client.pos[2], ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 	elseif data == "dis" then
 		print("Disconnected ip=" .. ip .. " port=" .. port)
-		self.clients[ip] = nil
+		local id = self:getClientId(ip, port)
+		assert(self.clients[id], "Not a valid client: " .. id)
+		self.clients[ id ] = nil
 	else
 		assert(false, "Bad message: " .. data)
 	end
+end
+
+function ServerGame:getClientId(ip, port)
+	return ip .. (":" .. port)
+end
+
+function ServerGame:newClient() 
+	return { pos = {0,0} }
 end

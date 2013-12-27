@@ -12,11 +12,11 @@ function StateManager:stop()
 end
 
 function StateManager:update(dt)
-	local new_state = self.state:update(dt)
+	local new_state, args = self.state:update(dt)
 	if new_state then
 		self.state:stop()
 		self.state = new_state
-		self.state:start()
+		self.state:start(args)
 	end
 end
 
@@ -25,11 +25,11 @@ function StateManager:draw()
 end
 
 function StateManager:key(key, action)
-	local new_state = self.state:key(key, action)
+	local new_state, args = self.state:key(key, action)
 	if new_state then
 		self.state:stop()
 		self.state = new_state
-		self.state:start()
+		self.state:start(args)
 	end
 end
 
@@ -38,10 +38,10 @@ function StateManager:mousePos(x,y)
 end
 
 function StateManager:mouse(key, action)
-	local new_state = self.state:mouse(key, action)
+	local new_state, args = self.state:mouse(key, action)
 	if new_state then
 		self.state:stop()
 		self.state = new_state
-		self.state:start()
+		self.state:start(args)
 	end
 end
