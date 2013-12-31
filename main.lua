@@ -4,6 +4,7 @@ io.stdout:setvbuf("no")
 
 -- Globals - available in all scripts without require
 Keys						= require("Keys")
+Vector						= require("Vector")
 SERVER_PORT = 12345
 
 local StateManager			= require("StateManager")
