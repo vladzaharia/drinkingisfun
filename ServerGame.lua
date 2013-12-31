@@ -11,11 +11,13 @@ function ServerGame:start()
 
 	-- Where we will store our mapping of clients to game objects
 	self.clients = {}
+	self.nextClientId = 0
 end
 
 function ServerGame:stop()
 	self.udp = nil
 	self.clients = nil
+	self.nextClientId = nil
 end
 
 function ServerGame:update(dt)
@@ -63,8 +65,8 @@ function ServerGame:handleMessage(ip, port, data)
 		local client = self:newClient()
 		self.clients[ id ] = client
 		-- Send response
-		local result, err = self.udp:sendto("regd " .. client.pos[1] .. "," ..
-			client.pos[2], ip, port)
+		local result, err = self.udp:sendto("regd " .. client.id .. " " .. 
+			client.pos[1] .. "," .. client.pos[2], ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 	elseif data == "dis" then
@@ -82,5 +84,7 @@ function ServerGame:getClientId(ip, port)
 end
 
 function ServerGame:newClient() 
-	return { pos = {0,0} }
+	local client = { id = self.nextClientId, pos = {0,0} }
+	self.nextClientId = self.nextClientId + 1
+	return client
 end

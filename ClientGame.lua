@@ -4,8 +4,11 @@ local socket = require("socket")
 
 
 function ClientGame:start(args)
+	self.id = args.id
 	self.pos = args.pos
 	self.udp = args.udp
+	
+	print(args.id, args.pos[1], args.pos[2])
 end
 
 function ClientGame:stop()
@@ -14,6 +17,7 @@ function ClientGame:stop()
 	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 		(err or "none"))
 	
+	self.id = nil
 	self.pos = nil
 	self.udp = nil
 end

@@ -24,8 +24,9 @@ function ClientConnectState:update(dt)
 		if data and data:match("regd ") ~= 1 then
 			-- Connection established!
 			print("Connected! reponse=" .. data)
-			local x,y = data:match("regd (.+),(.+)")
-			return ClientGameState, { pos = { tonumber(x), tonumber(y) },
+			local id, x,y = data:match("regd (%w+) (%S+),(%S+)")
+			return ClientGameState, { id = tonumber(id),
+				pos = { tonumber(x), tonumber(y) },
 				udp = self.udp }
 		else
 			assert(msg=="timeout", "Unexpected network error, msg=" .. msg)
