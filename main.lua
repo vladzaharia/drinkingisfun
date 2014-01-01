@@ -6,6 +6,7 @@ io.stdout:setvbuf("no")
 Keys						= require("Keys")
 Vector						= require("Vector")
 SERVER_PORT = 12345
+SYNC_INTERVAL = 0.1
 
 local StateManager			= require("StateManager")
 local AttractState			= require("AttractState")
@@ -29,6 +30,7 @@ function love.update(dt)
 end
 
 function love.draw()
+	love.graphics.clear()
 	StateManager:draw()
 end
 

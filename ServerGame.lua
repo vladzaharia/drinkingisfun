@@ -29,6 +29,8 @@ function ServerGame:update(dt)
 	end
 	-- Last receive should always be a timeout
 	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
+	
+	-- Server now needs to send out world updates to clients
 end
 
 function ServerGame:draw()
@@ -66,13 +68,15 @@ function ServerGame:handleMessage(ip, port, data)
 		self.clients[ id ] = client
 		-- Send response
 		local result, err = self.udp:sendto("regd " .. client.id .. " " .. 
-			client.pos[1] .. "," .. client.pos[2], ip, port)
+			client.pos, ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 	elseif data == "dis" then
 		print("Disconnected ip=" .. ip .. " port=" .. port)
 		local id = self:getClientId(ip, port)
 		assert(self.clients[id], "Not a valid client: " .. id)
+		-- TODO: The actual logic for this will require removing the player from
+		-- the world and notifying other clients of this
 		self.clients[ id ] = nil
 	else
 		assert(false, "Bad message: " .. data)
@@ -84,7 +88,7 @@ function ServerGame:getClientId(ip, port)
 end
 
 function ServerGame:newClient() 
-	local client = { id = self.nextClientId, pos = {0,0} }
+	local client = { id = self.nextClientId, pos = Vector(0,0) }
 	self.nextClientId = self.nextClientId + 1
 	return client
 end

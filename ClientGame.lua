@@ -1,17 +1,20 @@
 module("ClientGame", package.seeall)
 
-local socket = require("socket")
+local socket 			= require("socket")
+local World 			= require("World")
 
 
 function ClientGame:start(args)
 	self.id = args.id
-	self.pos = args.pos
 	self.udp = args.udp
 	
-	print(args.id, args.pos[1], args.pos[2])
+	World:start(love.window.getDimensions())
+	World:setPlayer(args.id, args.pos, Vector(0,0))
 end
 
 function ClientGame:stop()
+	World:stop()
+	
 	--send disconnect to server
 	local result, err = self.udp:send("dis")
 	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
@@ -23,16 +26,14 @@ function ClientGame:stop()
 end
 
 function ClientGame:update(dt)
-
+	World:update(dt)
 end
 
 function ClientGame:draw()
+	World:draw()
+	
 	love.graphics.print("Client: " .. socket.dns.toip(socket.dns.gethostname()),
 		10, 10)
-
-	love.graphics.push()
-	-- Do drawing here
-	love.graphics.pop()
 end
 
 function ClientGame:key(key, action)
