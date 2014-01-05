@@ -1,4 +1,6 @@
-module("ClientGame", package.seeall)
+
+local ClientGame = {}
+
 
 local socket 			= require("socket")
 local World 			= require("World")
@@ -46,3 +48,6 @@ end
 function ClientGame:mouse(key, action)
 	
 end
+
+
+return ClientGame

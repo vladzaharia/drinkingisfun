@@ -1,4 +1,5 @@
-module("Vector", package.seeall)
+
+local Vector = {}
 
 
 local function isnumber(v) 
@@ -78,5 +79,9 @@ Vector.mt = {
 }
 
 -- This allows us to call Vector as a function rather than use Vector.new()
-local t = getmetatable(Vector)
+local t = getmetatable(Vector) or {}
 t.__call = Vector.new
+setmetatable(Vector, t)
+
+
+return Vector

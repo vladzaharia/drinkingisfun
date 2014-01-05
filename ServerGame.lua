@@ -1,4 +1,5 @@
-module("ServerGame", package.seeall)
+
+local ServerGame = {}
 
 local socket 			= require("socket")
 
@@ -92,3 +93,6 @@ function ServerGame:newClient()
 	self.nextClientId = self.nextClientId + 1
 	return client
 end
+
+
+return ServerGame

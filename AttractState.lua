@@ -1,4 +1,5 @@
-module("AttractState", package.seeall)
+
+local AttractState = {}
 
 local ClientConnectState		= require("ClientConnectState")
 local ServerGameState			= require("ServerGameState")
@@ -30,3 +31,6 @@ end
 
 function AttractState:mouse(key, action)
 end
+
+
+return AttractState

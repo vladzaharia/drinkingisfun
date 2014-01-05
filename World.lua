@@ -1,4 +1,6 @@
-module("World", package.seeall)
+
+local World = {}
+
 
 -- Size of players
 local PSIZE = Vector(40,20)
@@ -52,3 +54,6 @@ function World:setPlayer(id, pos, vel)
 	self.players[id].pos = pos
 	self.players[id].vel = vel
 end
+
+
+return World

@@ -1,4 +1,5 @@
-module("ServerGameState", package.seeall)
+
+local ServerGameState = {}
 
 local ServerGame =			require("ServerGame")
 
@@ -30,3 +31,6 @@ end
 function ServerGameState:mouse(key, action)
 	ServerGame:mouse(key, action)
 end
+
+
+return ServerGameState

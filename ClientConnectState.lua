@@ -1,4 +1,5 @@
-module("ClientConnectState", package.seeall)
+
+local ClientConnectState = {}
 
 local socket			= require("socket")
 local ClientGameState	= require("ClientGameState")
@@ -66,3 +67,6 @@ end
 
 function ClientConnectState:mouse(key, action)
 end
+
+
+return ClientConnectState

@@ -1,4 +1,5 @@
-module("StateManager", package.seeall)
+
+local StateManager = {}
 
 
 function StateManager:start(initial_state)
@@ -45,3 +46,6 @@ function StateManager:mouse(key, action)
 		self.state:start(args)
 	end
 end
+
+
+return StateManager
