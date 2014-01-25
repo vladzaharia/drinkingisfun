@@ -37,7 +37,7 @@ function ClientGame:update(dt)
 		data, msg = self.udp:receive()
 	end
 	-- Last receive should always be a timeout
-	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
+	assert(msg=="timeout", "Unexpected network error, msg=" .. msg)
 
 	-- Perform local update
 	World:update(dt)
