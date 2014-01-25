@@ -6,8 +6,14 @@ local Map = require("Map")
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
-local DRINK_TYPE = {'cider', 'water', 'coffee'}
-local DRINK_TYPE_SIZE = 3
+local DRINK_TYPE = {1, 2, 3, 4, 5}
+local DRINK_TYPE_SIZE = 5
+local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
+						 'Assets/drinks/beerGreen.png',
+						 'Assets/drinks/ice.png',
+						 'Assets/drinks/shotJello.png',
+						 'Assets/drinks/shotTequila.png'}
+
 
 function World:start(width, height)
 	self.width = width;
@@ -67,10 +73,12 @@ function World:draw()
 	end
 
 	-- Drinks
-	love.graphics.setColor(0, 255, 0, 255)
+	love.graphics.reset()
 	for id, drink in pairs(self.drinks) do
 		local pos = drink.pos
-		love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
+		love.graphics.draw(drinkImage, pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE)
+		--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
 		--love.graphics.print("Drink" .. id .. " P" .. Vector.tostring(drink.pos), pos.x + 50, pos.y + 10)
 	end
 end
@@ -120,7 +128,7 @@ function World:spawnDrink()
 
 	while not freeSpace do
 		local randPos = self.world[newPos.y][newPos.x]
-		if randPos == 'W' then
+		if randPos == 'W' or World:collideItem(newPos) then
 			newPos = World:randomPos()
 		else
 			freeSpace = true
@@ -140,6 +148,15 @@ function World:randomPos()
 	local newX = math.random(1, World:tableSize(self.world[1])-1)
 	local newY = math.random(1, World:tableSize(self.world)-1)
 	return Vector(newX, newY)
+end
+
+function World:collideItem(pos)
+	for id, drink in pairs(self.drinks) do
+		if pos == drink.pos then
+			return true
+		end
+	end
+	return false
 end
 
 function World:pickUp(pid, ppos)
