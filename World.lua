@@ -12,19 +12,12 @@ function World:start(width, height)
 	self.height = height
 	self.players = {}
 	self.platforms = {}
-	
-	-- Set up some default platforms
-	self.platforms[1] = {
-		pos = Vector(width/2,height/2),
-		size = Vector(width/2,height/2)
-	}
 end
 
 function World:stop()
 	self.width = nil
 	self.height = nil
 	self.players = nil
-	self.platforms = nil
 end
 
 function World:update(dt)
@@ -36,13 +29,6 @@ function World:draw()
 	love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
 		local pos = player.pos - PSIZE/2
-		love.graphics.rectangle("fill", pos.x, pos.y, PSIZE.x, PSIZE.y)
-	end
-	
-	-- Platforms
-	love.graphics.setColor(0, 255, 0, 255)
-	for _, plat in pairs(self.platforms) do
-		local pos = plat.pos - (plat.size/2)
 		love.graphics.rectangle("fill", pos.x, pos.y, PSIZE.x, PSIZE.y)
 	end
 end
