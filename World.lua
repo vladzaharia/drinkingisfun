@@ -37,8 +37,8 @@ function World:setPlayer(id, pos, vel)
 	if not self.players[id] then
 		self.players[id] = {}
 	end
-	self.players[id].pos = pos
-	self.players[id].vel = vel
+	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
+	self.players[id].vel = vel or self.players[id].vel or Vector(0,0)
 end
 
 

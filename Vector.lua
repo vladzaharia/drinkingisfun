@@ -55,7 +55,7 @@ function Vector.eq(v1, v2)
 end
 
 -- This function can't be named "tostring" or it'll shadow the the global one
-function Vector.tostringvec(v)
+function Vector.tostring(v)
 	return v.x .. "," .. v.y
 end
 
@@ -75,7 +75,7 @@ Vector.mt = {
 	__unm = Vector.neg,
 	__concat = Vector.concat,
 	__eq = Vector.eq,
-	__tostring = Vector.tostringvec
+	__tostring = Vector.tostring
 }
 
 -- This allows us to call Vector as a function rather than use Vector.new()
