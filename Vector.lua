@@ -60,7 +60,8 @@ end
 
 function Vector.fromstring(s)
 	local x,y = s:match("(%S+),(%S+)")
-	return Vector(tonumver(x), tonumver(y))
+	--print(s,tonumber(x),tonumber(y))
+	return Vector(tonumber(x), tonumber(y))
 end
 
 function Vector.new(self, x,y)

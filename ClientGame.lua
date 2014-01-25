@@ -42,7 +42,12 @@ function ClientGame:update(dt)
 	-- Perform local update
 	World:update(dt)
 
-	-- TODO: Send update to server
+	-- Send client update to server
+	local pos = World:getPlayerPosition(self.id)
+	local msg = "upd " .. self.id .. " " .. pos
+	local result, err = self.udp:send(msg)
+	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+		(err or "none"))
 end
 
 function ClientGame:draw()
@@ -74,7 +79,7 @@ end
 
 function ClientGame:updatePos(newPos)
 	-- TODO: This function should send a message to server to update it
-	newPos = World:setPlayer(self.id, newPos)
+	World:setPlayer(self.id, newPos)
 end
 
 function ClientGame:mousePos(x,y)
@@ -85,7 +90,16 @@ function ClientGame:mouse(key, action)
 end
 
 function ClientGame:handleMessage(data)
-
+	if data:match("upd ") then
+		local id, pos = data:match("upd (%w+) (%S+,%S+);")
+		print(pos)
+		pos = Vector.fromstring(pos)
+		assert(id ~= self.id, "got update for self which is nonsense")
+		local newPos = World:setPlayer(id, pos)
+		assert(newPos == pos, "failed updated position")
+	else
+		assert(false, "Bad message: " .. data)
+	end
 end
 
 

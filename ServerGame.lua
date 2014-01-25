@@ -93,9 +93,13 @@ function ServerGame:handleMessage(ip, port, data)
 		-- TODO: The actual logic for this will require removing the player from
 		-- the world and notifying other clients of this
 		self.clients[ id ] = nil
-	elseif data:match("req ") then
+	elseif data:match("upd ") then
 		-- TODO: expect req <id> <pos>
-		-- TODO: return app <pos> (old position if rejected)
+		local id = self:getClientId(ip, port)
+		local client = self.clients[id]
+		local id,vec = data:match("upd (%w*) (%S*,%S*)")
+		assert(tonumber(id) == client.id, "Bad client id for this client")
+		client.pos = Vector.fromstring(vec)
 	else
 		assert(false, "Bad message: " .. data)
 	end
@@ -106,7 +110,7 @@ function ServerGame:getClientId(ip, port)
 end
 
 function ServerGame:newClient() 
-	local client = { id = self.nextClientId, pos = Vector(0,0) }
+	local client = { id = self.nextClientId, pos = Vector(self.nextClientId*GRID_SIZE,0) }
 	self.nextClientId = self.nextClientId + 1
 	return client
 end
