@@ -1,6 +1,6 @@
 
 local World = {}
-
+local Map = require("Map")
 
 -- Size of players
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
@@ -12,6 +12,7 @@ function World:start(width, height)
 	self.height = height
 	self.players = {}
 	self.platforms = {}
+	self.world = Map.getExampleWorld()
 
 	self.players[99] = {}
 	self.players[99].pos = Vector(114,114)
