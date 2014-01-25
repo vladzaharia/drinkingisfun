@@ -37,7 +37,7 @@ function ClientGame:update(dt)
 		data, msg = self.udp:receive()
 	end
 	-- Last receive should always be a timeout
-	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
+	assert(msg=="timeout", "Unexpected network error, msg=" .. msg)
 
 	-- Perform local update
 	World:update(dt)
@@ -73,8 +73,8 @@ function ClientGame:key(key, action)
 end
 
 function ClientGame:updatePos(newPos)
-	-- TODO: This function should send a message to server and wait for reply
-	World:setPlayer(self.id, newPos)
+	-- TODO: This function should send a message to server to update it
+	newPos = World:setPlayer(self.id, newPos)
 end
 
 function ClientGame:mousePos(x,y)

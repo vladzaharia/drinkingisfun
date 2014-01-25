@@ -33,7 +33,7 @@ function ServerGame:update(dt)
 	
 	-- Server now needs to send out world updates to clients
 	for id, client in pairs(self.clients) do
-		local ip, port == id:match("(%W):(%W)")
+		local ip, port = id:match("(%W):(%W)")
 		local msg = "upd "
 		for other_id, other_client in pairs(self.clients) do 
 			if other_id ~= id then

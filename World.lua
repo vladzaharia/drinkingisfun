@@ -12,6 +12,9 @@ function World:start(width, height)
 	self.height = height
 	self.players = {}
 	self.platforms = {}
+
+	self.players[99] = {}
+	self.players[99].pos = Vector(114,114)
 end
 
 function World:stop()
@@ -35,10 +38,24 @@ function World:draw()
 end
 
 function World:setPlayer(id, pos)
+	-- TODO: Check if colliding into something locally
+	local can_move = true
+
 	if not self.players[id] then
 		self.players[id] = {}
 	end
-	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
+
+	for _, player in pairs(self.players) do
+		if pos == player.pos
+			can_move = false
+			break
+	end
+
+	if can_move then
+		self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
+	end
+
+	return self.players[id].pos
 end
 
 function World:getPlayerPosition(id)
