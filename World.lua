@@ -6,25 +6,27 @@ local Map = require("Map")
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
-local DRINK_TYPE = {'cider', 'water', 'coffee'}
-local DRINK_TYPE_SIZE = 3
+local DRINK_TYPE = {1, 2, 3, 4, 5}
+local DRINK_TYPE_SIZE = 5
+local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
+						 'Assets/drinks/beerGreen.png',
+						 'Assets/drinks/ice.png',
+						 'Assets/drinks/shotJello.png',
+						 'Assets/drinks/shotTequila.png'}
+
 
 function World:start(width, height)
-	print(width, height)
 	self.width = width;
 	self.height = height
 	self.players = {}
 	self.platforms = {}
-	self.world = Map.getExampleWorld()
+	self.world = Map:getExampleWorld(width, height)
 	self.drinks = {}
 
 	---test making drinks
 	for i=1, 3 do
 		World:spawnDrink()
 	end
-
-	self.players[99] = {}
-	self.players[99].pos = Vector(9,9)
 end
 
 function World:stop()
@@ -35,6 +37,12 @@ function World:stop()
 end
 
 function World:update(dt)
+	-- check for item to pickup, item currently goes into the abyss
+	for id, player in pairs(self.players) do
+		World:pickUp(id, self.players[id].pos)
+	end
+
+	--spawn drink
 	local drink_count = World:tableSize(self.drinks)
 	if drink_count < 3 then
 		World:spawnDrink()
@@ -59,15 +67,19 @@ function World:draw()
 	love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
 		local pos = player.pos
-		love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+		if pos then
+			love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+		end
 	end
 
 	-- Drinks
-	love.graphics.setColor(0, 255, 0, 255)
+	love.graphics.reset()
 	for id, drink in pairs(self.drinks) do
-		local pos = drink.pos - PSIZE/2
-		love.graphics.rectangle("fill", pos.x, pos.y, PSIZE.x, PSIZE.y)
-		love.graphics.print("Drink" .. id .. " P" .. Vector.tostring(drink.pos), pos.x + 50, pos.y + 10)
+		local pos = drink.pos
+		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
+		love.graphics.draw(drinkImage, pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE)
+		--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+		--love.graphics.print("Drink" .. id .. " P" .. Vector.tostring(drink.pos), pos.x + 50, pos.y + 10)
 	end
 end
 
@@ -86,10 +98,21 @@ function World:setPlayer(id, pos)
 		end
 	end
 
+	for y, row in pairs(self.world) do
+		for x, item in pairs(row) do
+			if item then
+				if item == "W" then
+					if pos == Vector(x,y) then
+						can_move = false
+						break
+					end
+				end
+			end
+		end
+	end
+
 	if can_move then
 		self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
-		-- check for item to pickup, item currently goes into the abyss
-		World:pickUp(id, self.players[id].pos)
 	end
 
 	return self.players[id].pos
@@ -100,15 +123,40 @@ function World:getPlayerPosition(id)
 end
 
 function World:spawnDrink()
-	local newX = math.random(0, 10) * GRID_SIZE
-	local newY = math.random(0, 10) * GRID_SIZE
+	local freeSpace = false
+	local newPos = World:randomPos()
+
+	while not freeSpace do
+		local randPos = self.world[newPos.y][newPos.x]
+		if randPos == 'W' or World:collideItem(newPos) then
+			newPos = World:randomPos()
+		else
+			freeSpace = true
+		end
+	end
+
 	local drinkType = DRINK_TYPE[math.random(1, DRINK_TYPE_SIZE)]
 	
 	local d = {}
-	d.pos = Vector(newX, newY)
+	d.pos = newPos
 	d.type = drinkType
 
 	table.insert(self.drinks, d)
+end
+
+function World:randomPos()
+	local newX = math.random(1, World:tableSize(self.world[1])-1)
+	local newY = math.random(1, World:tableSize(self.world)-1)
+	return Vector(newX, newY)
+end
+
+function World:collideItem(pos)
+	for id, drink in pairs(self.drinks) do
+		if pos == drink.pos then
+			return true
+		end
+	end
+	return false
 end
 
 function World:pickUp(pid, ppos)

@@ -1,17 +1,34 @@
 local Map = {}
 
-local ExampleWorld = {{"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"}, 
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
-					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
-					  {"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"}}
+-- local ExampleWorld = {{"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"}, 
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
+-- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
+-- 					  {"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"}}
 
-function Map:getExampleWorld()
+local ExampleWorld = {}
+
+function Map:getExampleWorld(width, height)
+	numRows = math.floor(height / GRID_SIZE)
+	numCols = math.floor(width / GRID_SIZE)
+
+	for i = 1,numRows do
+    ExampleWorld[i] = {}
+
+    for j = 1,numCols do
+      if i == 1 or i == numRows or j == 1 or j == numCols then
+        ExampleWorld[i][j] = "W"
+      else 
+        ExampleWorld[i][j] = nil
+      end
+    end
+  end
+
 	return ExampleWorld
 end
 

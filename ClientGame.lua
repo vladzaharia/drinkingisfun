@@ -11,7 +11,7 @@ function ClientGame:start(args)
 	self.udp = args.udp
 	self.moving = false
 	
-	World:start(love.window.getDimensions())
+	World:start(love.window.getWidth(), love.window.getHeight())
 	World:setPlayer(args.id, args.pos, Vector(0,0))
 end
 
