@@ -10,12 +10,11 @@ local DRINK_TYPE = {'cider', 'water', 'coffee'}
 local DRINK_TYPE_SIZE = 3
 
 function World:start(width, height)
-	print(width, height)
 	self.width = width;
 	self.height = height
 	self.players = {}
 	self.platforms = {}
-	self.world = Map.getExampleWorld()
+	self.world = Map:getExampleWorld(width, height)
 	self.drinks = {}
 
 	---test making drinks
