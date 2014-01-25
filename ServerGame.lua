@@ -33,14 +33,18 @@ function ServerGame:update(dt)
 	
 	-- Server now needs to send out world updates to clients
 	for id, client in pairs(self.clients) do
-		local ip, port = id:match("(%W):(%W)")
+		local ip, port = id:match("(%S+):(%S+)")
 		local msg = "upd "
+		local send = false
 		for other_id, other_client in pairs(self.clients) do 
 			if other_id ~= id then
-				msg = msg .. client.id .. " " .. client.pos .. "; "
+				msg = msg .. other_client.id .. " " .. other_client.pos .. "; "
+				send = true
 			end
 		end
-		self.udp:sendto(msg, ip, tonumber(port))
+		if send then
+			self.udp:sendto(msg, ip, tonumber(port))
+		end
 	end
 end
 
