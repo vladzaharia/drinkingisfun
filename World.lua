@@ -49,7 +49,14 @@ function World:update(dt)
 	end
 end
 
-function World:draw()
+function World:draw(playerPos)
+	-- We want to center the player and move everything, so calculate offset
+	yCenter = math.floor(self.height / (GRID_SIZE * 2))
+	xCenter = math.floor(self.width / (GRID_SIZE * 2))
+	centerPos = Vector(xCenter, yCenter)
+
+	offsetPos = centerPos - playerPos
+	
 	-- Draw the world
 	for y, row in pairs(self.world) do
 		for x, item in pairs(row) do
@@ -58,7 +65,7 @@ function World:draw()
 					love.graphics.setColor(0, 0, 255, 255)
 				end
 
-				love.graphics.rectangle("fill", x*GRID_SIZE-GRID_SIZE, y*GRID_SIZE-GRID_SIZE, GRID_SIZE, GRID_SIZE)
+				love.graphics.rectangle("fill", (x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (y+offsetPos.y)*GRID_SIZE-GRID_SIZE, GRID_SIZE, GRID_SIZE)
 			end
 		end
 	end
@@ -68,7 +75,7 @@ function World:draw()
 	for id, player in pairs(self.players) do
 		local pos = player.pos
 		if pos then
-			love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+			love.graphics.rectangle("fill", (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
 		end
 	end
 
@@ -77,7 +84,7 @@ function World:draw()
 	for id, drink in pairs(self.drinks) do
 		local pos = drink.pos
 		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
-		love.graphics.draw(drinkImage, pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE)
+		love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 		--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
 		--love.graphics.print("Drink" .. id .. " P" .. Vector.tostring(drink.pos), pos.x + 50, pos.y + 10)
 	end
