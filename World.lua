@@ -116,15 +116,31 @@ function World:getPlayerPosition(id)
 end
 
 function World:spawnDrink()
-	local newX = math.random(0, World:tableSize(self.world))
-	local newY = math.random(0, World:tableSize(self.world[1]))
+	local freeSpace = false
+	local newPos = World:randomPos()
+
+	while not freeSpace do
+		local randPos = self.world[newPos.y][newPos.x]
+		if randPos == 'W' then
+			newPos = World:randomPos()
+		else
+			freeSpace = true
+		end
+	end
+
 	local drinkType = DRINK_TYPE[math.random(1, DRINK_TYPE_SIZE)]
 	
 	local d = {}
-	d.pos = Vector(newX, newY)
+	d.pos = newPos
 	d.type = drinkType
 
 	table.insert(self.drinks, d)
+end
+
+function World:randomPos()
+	local newX = math.random(1, World:tableSize(self.world[1])-1)
+	local newY = math.random(1, World:tableSize(self.world)-1)
+	return Vector(newX, newY)
 end
 
 function World:pickUp(pid, ppos)
