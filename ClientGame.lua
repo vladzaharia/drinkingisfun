@@ -9,6 +9,7 @@ local World 			= require("World")
 function ClientGame:start(args)
 	self.id = args.id
 	self.udp = args.udp
+	self.moving = false
 	
 	World:start(love.window.getDimensions())
 	World:setPlayer(args.id, args.pos, Vector(0,0))
@@ -39,19 +40,28 @@ function ClientGame:draw()
 end
 
 function ClientGame:key(key, action)
-	if action == "p" then
+	if action == "p" and not self.moving then
+		self.moving = true
 		curPos = World:getPlayerPosition(self.id)
 
 		if key == Keys.Up then
-			World:setPlayer(self.id, curPos - Vector(0, GRID_SIZE))
+			ClientGame:updatePos(curPos - Vector(0, GRID_SIZE))
 		elseif key == Keys.Down then
-			World:setPlayer(self.id, curPos - Vector(0, -GRID_SIZE))
+			ClientGame:updatePos(curPos - Vector(0, -GRID_SIZE))
 		elseif key == Keys.Left then
-			World:setPlayer(self.id, curPos - Vector(GRID_SIZE, 0))
+			ClientGame:updatePos(curPos - Vector(GRID_SIZE, 0))
 		elseif key == Keys.Right then
-			World:setPlayer(self.id, curPos - Vector(-GRID_SIZE, 0))
+			ClientGame:updatePos(curPos - Vector(-GRID_SIZE, 0))
 		end
+
+		-- move this to the receive
+		self.moving = false
 	end
+end
+
+function ClientGame:updatePos(newPos)
+	-- TODO: This function should send a message to server and wait for reply
+	World:setPlayer(self.id, newPos)
 end
 
 function ClientGame:mousePos(x,y)
