@@ -46,9 +46,10 @@ function World:setPlayer(id, pos)
 	end
 
 	for _, player in pairs(self.players) do
-		if pos == player.pos
+		if pos == player.pos then
 			can_move = false
 			break
+		end
 	end
 
 	if can_move then
