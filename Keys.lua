@@ -3,7 +3,11 @@ local Keys =
 {
 	Backspace	= "backspace",
 	Enter 		= "return",
-	Esc			= "escape"
+	Esc			= "escape",
+	Left		= "left",
+	Right		= "right",
+	Down		= "down",
+	Up			= "up"
 }
 
 function Keys.tostring(key)
