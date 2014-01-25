@@ -39,7 +39,19 @@ function ClientGame:draw()
 end
 
 function ClientGame:key(key, action)
+	if action == "p" then
+		curPos = World:getPlayerPosition(self.id)
 
+		if key == Keys.Up then
+			World:setPlayer(self.id, curPos - Vector(0, GRID_SIZE))
+		elseif key == Keys.Down then
+			World:setPlayer(self.id, curPos - Vector(0, -GRID_SIZE))
+		elseif key == Keys.Left then
+			World:setPlayer(self.id, curPos - Vector(GRID_SIZE, 0))
+		elseif key == Keys.Right then
+			World:setPlayer(self.id, curPos - Vector(-GRID_SIZE, 0))
+		end
+	end
 end
 
 function ClientGame:mousePos(x,y)
