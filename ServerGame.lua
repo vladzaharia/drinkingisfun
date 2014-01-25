@@ -32,6 +32,16 @@ function ServerGame:update(dt)
 	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
 	
 	-- Server now needs to send out world updates to clients
+	for id, client in pairs(self.clients) do
+		local ip, port == id:match("(%W):(%W)")
+		local msg = "upd "
+		for other_id, other_client in pairs(self.clients) do 
+			if other_id ~= id then
+				msg = msg .. client.id .. " " .. client.pos .. "; "
+			end
+		end
+		self.udp:sendto(msg, ip, tonumber(port))
+	end
 end
 
 function ServerGame:draw()
@@ -79,6 +89,9 @@ function ServerGame:handleMessage(ip, port, data)
 		-- TODO: The actual logic for this will require removing the player from
 		-- the world and notifying other clients of this
 		self.clients[ id ] = nil
+	elseif data:match("req ") then
+		-- TODO: expect req <id> <pos>
+		-- TODO: return app <pos> (old position if rejected)
 	else
 		assert(false, "Bad message: " .. data)
 	end

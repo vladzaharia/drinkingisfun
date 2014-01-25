@@ -29,7 +29,20 @@ function ClientGame:stop()
 end
 
 function ClientGame:update(dt)
+	-- Receive client updates
+	local data, msg = self.udp:receive()
+	while data ~= nil do
+		self:handleMessage(data)
+		-- Grab next message
+		data, msg = self.udp:receive()
+	end
+	-- Last receive should always be a timeout
+	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
+
+	-- Perform local update
 	World:update(dt)
+
+	-- TODO: Send update to server
 end
 
 function ClientGame:draw()
@@ -69,6 +82,10 @@ end
 
 function ClientGame:mouse(key, action)
 	
+end
+
+function ClientGame:handleMessage(data)
+
 end
 
 
