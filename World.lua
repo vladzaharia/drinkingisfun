@@ -22,9 +22,6 @@ function World:start(width, height)
 	for i=1, 3 do
 		World:spawnDrink()
 	end
-
-	self.players[99] = {}
-	self.players[99].pos = Vector(9,9)
 end
 
 function World:stop()
@@ -59,7 +56,9 @@ function World:draw()
 	love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
 		local pos = player.pos
-		love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+		if pos then
+			love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+		end
 	end
 
 	-- Drinks
@@ -83,6 +82,19 @@ function World:setPlayer(id, pos)
 		if pos == player.pos then
 			can_move = false
 			break
+		end
+	end
+
+	for y, row in pairs(self.world) do
+		for x, item in pairs(row) do
+			if item then
+				if item == "W" then
+					if pos == Vector(x,y) then
+						can_move = false
+						break
+					end
+				end
+			end
 		end
 	end
 
