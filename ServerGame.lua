@@ -110,7 +110,7 @@ function ServerGame:getClientId(ip, port)
 end
 
 function ServerGame:newClient() 
-	local client = { id = self.nextClientId, pos = Vector(self.nextClientId+2,2) }
+	local client = { id = self.nextClientId, pos = Vector(self.nextClientId + 1,2) }
 	self.nextClientId = self.nextClientId + 1
 	return client
 end
