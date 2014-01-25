@@ -32,6 +32,12 @@ function World:stop()
 end
 
 function World:update(dt)
+	-- check for item to pickup, item currently goes into the abyss
+	for id, player in pairs(self.players) do
+		World:pickUp(id, self.players[id].pos)
+	end
+
+	--spawn drink
 	local drink_count = World:tableSize(self.drinks)
 	if drink_count < 3 then
 		World:spawnDrink()
@@ -64,9 +70,9 @@ function World:draw()
 	-- Drinks
 	love.graphics.setColor(0, 255, 0, 255)
 	for id, drink in pairs(self.drinks) do
-		local pos = drink.pos - PSIZE/2
-		love.graphics.rectangle("fill", pos.x, pos.y, PSIZE.x, PSIZE.y)
-		love.graphics.print("Drink" .. id .. " P" .. Vector.tostring(drink.pos), pos.x + 50, pos.y + 10)
+		local pos = drink.pos
+		love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+		--love.graphics.print("Drink" .. id .. " P" .. Vector.tostring(drink.pos), pos.x + 50, pos.y + 10)
 	end
 end
 
@@ -100,8 +106,6 @@ function World:setPlayer(id, pos)
 
 	if can_move then
 		self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
-		-- check for item to pickup, item currently goes into the abyss
-		World:pickUp(id, self.players[id].pos)
 	end
 
 	return self.players[id].pos
@@ -112,8 +116,8 @@ function World:getPlayerPosition(id)
 end
 
 function World:spawnDrink()
-	local newX = math.random(0, 10) * GRID_SIZE
-	local newY = math.random(0, 10) * GRID_SIZE
+	local newX = math.random(0, World:tableSize(self.world))
+	local newY = math.random(0, World:tableSize(self.world[1]))
 	local drinkType = DRINK_TYPE[math.random(1, DRINK_TYPE_SIZE)]
 	
 	local d = {}
