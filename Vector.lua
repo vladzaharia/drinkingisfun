@@ -54,9 +54,13 @@ function Vector.eq(v1, v2)
 	return v1.x == v2.x and v1.y == v2.y
 end
 
--- This function can't be named "tostring" or it'll shadow the the global one
 function Vector.tostring(v)
 	return v.x .. "," .. v.y
+end
+
+function Vector.fromstring(s)
+	local x,y = s:match("(%S+),(%S+)")
+	return Vector(tonumver(x), tonumver(y))
 end
 
 function Vector.new(self, x,y)
