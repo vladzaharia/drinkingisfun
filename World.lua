@@ -15,7 +15,7 @@ function World:start(width, height)
 	self.world = Map.getExampleWorld()
 
 	self.players[99] = {}
-	self.players[99].pos = Vector(114,114)
+	self.players[99].pos = Vector(9,9)
 end
 
 function World:stop()
@@ -25,16 +25,27 @@ function World:stop()
 end
 
 function World:update(dt)
-	
 end
 
 function World:draw()
+	-- Draw the world
+	for y, row in pairs(self.world) do
+		for x, item in pairs(row) do
+			if item then
+				if item == "W" then
+					love.graphics.setColor(0, 0, 255, 255)
+				end
+
+				love.graphics.rectangle("fill", x*GRID_SIZE-GRID_SIZE, y*GRID_SIZE-GRID_SIZE, GRID_SIZE, GRID_SIZE)
+			end
+		end
+	end
+
 	-- Players
 	love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
-		local pos = player.pos - PSIZE/2
-		love.graphics.rectangle("fill", pos.x, pos.y, PSIZE.x, PSIZE.y)
-		love.graphics.print("Player" .. id .. " P" .. Vector.tostring(player.pos), pos.x + 50, pos.y + 10)
+		local pos = player.pos
+		love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
 	end
 end
 

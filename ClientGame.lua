@@ -52,9 +52,11 @@ end
 
 function ClientGame:draw()
 	World:draw()
-	
+
+	love.graphics.setColor(255,255,255,255)
 	love.graphics.print("Client: " .. socket.dns.toip(socket.dns.gethostname()),
-		10, 10)
+		400, 580)
+	love.graphics.print("Player" .. self.id .. " P" .. Vector.tostring(World:getPlayerPosition(self.id)), 100, 580)
 end
 
 function ClientGame:key(key, action)
@@ -63,13 +65,13 @@ function ClientGame:key(key, action)
 		curPos = World:getPlayerPosition(self.id)
 
 		if key == Keys.Up then
-			ClientGame:updatePos(curPos - Vector(0, GRID_SIZE))
+			ClientGame:updatePos(curPos - Vector(0, 1))
 		elseif key == Keys.Down then
-			ClientGame:updatePos(curPos - Vector(0, -GRID_SIZE))
+			ClientGame:updatePos(curPos - Vector(0, -1))
 		elseif key == Keys.Left then
-			ClientGame:updatePos(curPos - Vector(GRID_SIZE, 0))
+			ClientGame:updatePos(curPos - Vector(1, 0))
 		elseif key == Keys.Right then
-			ClientGame:updatePos(curPos - Vector(-GRID_SIZE, 0))
+			ClientGame:updatePos(curPos - Vector(-1, 0))
 		end
 
 		-- move this to the receive
