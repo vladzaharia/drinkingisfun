@@ -38,7 +38,7 @@ function ServerGame:update(dt)
 		local send = false
 		for other_id, other_client in pairs(self.clients) do 
 			if other_id ~= id then
-				msg = msg .. other_client.id .. " " .. other_client.pos .. "; "
+				msg = msg .. other_client.id .. " " .. other_client.pos .. ";"
 				send = true
 			end
 		end
@@ -94,7 +94,6 @@ function ServerGame:handleMessage(ip, port, data)
 		-- the world and notifying other clients of this
 		self.clients[ id ] = nil
 	elseif data:match("upd ") then
-		-- TODO: expect req <id> <pos>
 		local id = self:getClientId(ip, port)
 		local client = self.clients[id]
 		local id,vec = data:match("upd (%w*) (%S*,%S*)")
