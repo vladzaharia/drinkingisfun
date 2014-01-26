@@ -82,7 +82,7 @@ function World:update(dt)
 				player.action = 'stand'
 				player.moveTime = nil
 			else
-				player.moveTime = player.moveTime + 0.03
+				player.moveTime = player.moveTime + 0.04
 			end
 		end
 	end
