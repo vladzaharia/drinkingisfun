@@ -5,6 +5,13 @@ local socket 			= require("socket")
 local DisconnectManager	= require("DisconnectManager")
 local Map 				= require("Map")
 
+-- Types of drinks
+-- Duplicated in World
+local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
+local DRINK_CONTENT = {8, 8, 22, 16, 16, 12}
+local DRINK_TYPE_SIZE = 6
+
+
 function ServerGame:start()
 	-- Set up our socket
 	self.udp = socket.udp()
@@ -13,6 +20,7 @@ function ServerGame:start()
 
 	-- Where we will store our mapping of clients to game objects
 	self.clients = {}
+	self.drinks = {}
 	self.nextClientId = 0
 end
 
@@ -31,6 +39,12 @@ function ServerGame:update(dt)
 	end
 	-- Last receive should always be a timeout
 	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
+
+	-- Server checks number of active drinks and adds more
+	local drink_count = self:tableSize(self.drinks)
+	if drink_count < 15 then
+		self:spawnDrink()
+	end
 	
 	-- Server now needs to send out world updates to clients
 	for desc, client in pairs(self.clients) do
@@ -97,6 +111,7 @@ function ServerGame:handleMessage(ip, port, data)
 			client.pos, ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
+		self:sendAllDrinks(desc)
 	elseif data == "dis" then
 		print("Disconnected ip=" .. ip .. " port=" .. port)
 		assert(self.clients[desc], "Not a valid client: " .. desc)
@@ -132,6 +147,11 @@ function ServerGame:handleMessage(ip, port, data)
 				self.udp:sendto(msg, ip, tonumber(port))
 			end
 		end
+	elseif data:match("drk ") then
+		local client = self.clients[desc]
+		local pos = data:match("drk (%S+,%S+)")
+		pos = Vector.fromstring(pos)
+		self:removeDrink(pos, desc)
 	elseif data:match("hrt") then
 		-- This is just the heartbeat for the client connection, do nothing
 	else
@@ -206,6 +226,67 @@ function ServerGame:removePlayer(desc)
 		local result, err = self.udp:sendto("dis " .. client.id, nip, nport)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
+	end
+end
+
+function ServerGame:spawnDrink()
+	local freeSpace = false
+	local newPos = self:randomPos()
+
+	while not freeSpace do
+		local randPos = Map:getWorld()[newPos.y][newPos.x]
+		if randPos == 'W' or randPos == 'P' or self:collideItem(newPos) then
+			newPos = self:randomPos()
+		else
+			freeSpace = true
+		end
+	end
+
+	local drinkType = DRINK_TYPE[math.random(1, DRINK_TYPE_SIZE)]
+	
+	local d = {}
+	d.pos = newPos
+	d.type = drinkType
+
+	table.insert(self.drinks, d)
+
+	-- Send all clients update about new drink
+	for desc, client in pairs(self.clients) do
+		local ip, port = self:getClientContact(desc)
+		self.udp:sendto("drk " .. d.type .. " " .. d.pos, ip, port)
+	end
+end
+
+function ServerGame:sendAllDrinks(desc)
+	local ip, port = self:getClientContact(desc)
+	-- Send all clients update about new drink
+	for _, drink in pairs(self.drinks) do
+		self.udp:sendto("drk " .. drink.type .. " " .. drink.pos, ip, port)
+	end
+end
+
+function ServerGame:collideItem(pos)
+	for id, drink in pairs(self.drinks) do
+		if pos == drink.pos then
+			return true
+		end
+	end
+	return false
+end
+
+function ServerGame:removeDrink(pos, sender_desc)
+	local d = nil
+	print(inspect(self.drinks))
+	print(pos, type(pos))
+	for id, drink in pairs(self.drinks) do
+		if pos == drink.pos then
+			d = drink
+			self.drinks[id] = nil
+			break;
+		end
+	end
+	if not d then
+		assert(false, "could not find the drink to remove")
 	end
 end
 

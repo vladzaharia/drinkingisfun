@@ -10,6 +10,7 @@ local sManager = SoundManager:new()
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
+-- Duplicated in ServerGame
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
 local DRINK_CONTENT = {8, 8, 22, 16, 16, 12}
 local DRINK_TYPE_SIZE = 6
@@ -45,11 +46,6 @@ function World:start(width, height)
 	self.drinks = {}
 	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 	self.bloomStatus = false
-
-	---test making drinks
-	for i=1, 4 do
-		World:spawnDrink()
-	end
 
 	--start the music
 	sManager:init()
@@ -107,12 +103,6 @@ function World:update(dt)
 				player.moveTime = player.moveTime + 0.06
 			end
 		end
-	end
-
-	--spawn drink
-	local drink_count = World:tableSize(self.drinks)
-	if drink_count < 15 then
-		World:spawnDrink()
 	end
 
 	sTime = sTime + love.timer.getAverageDelta()
@@ -457,6 +447,10 @@ function World:drawInventory(dtype, x, y)
 	end
 end
 
+function World:addDrink(drink_type, pos)
+	table.insert(self.drinks, {type = drink_type, pos = pos})
+end
+
 function World:consumeDrink(pid)
 	local player = self.players[pid]
 	if player.rightHand > 0 then
@@ -470,28 +464,6 @@ function World:consumeDrink(pid)
 		player.leftHand = 0
 		sManager:drink()
 	end
-end
-
-function World:spawnDrink()
-	local freeSpace = false
-	local newPos = World:randomPos()
-
-	while not freeSpace do
-		local randPos = self.world[newPos.y][newPos.x]
-		if randPos == 'W' or randPos == 'P' or World:collideItem(newPos) then
-			newPos = World:randomPos()
-		else
-			freeSpace = true
-		end
-	end
-
-	local drinkType = DRINK_TYPE[math.random(1, DRINK_TYPE_SIZE)]
-	
-	local d = {}
-	d.pos = newPos
-	d.type = drinkType
-
-	table.insert(self.drinks, d)
 end
 
 function World:randomPos()
@@ -524,6 +496,14 @@ function World:pickUp(pid, ppos)
 			end
 			--two hands only, don't be greedy
 			--table.remove(self.drinks, id)
+		end
+	end
+end
+
+function World:removeDrink(pos)
+	for id, drink in pairs(self.drinks) do
+		if drink.pos == pos then
+			self.drinks[id] = nil
 		end
 	end
 end

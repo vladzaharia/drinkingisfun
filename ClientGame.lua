@@ -7,11 +7,16 @@ local World 			= require("World")
 
 local HEARTBEAT_DELAY = 1
 
+
 function ClientGame:start(args)
 	self.id = args.id
 	self.udp = args.udp
 	self.moving = false
 	self.timeSinceLastHeartbeat = 0
+
+	-- HACK this is to get messages from the World
+	UDPSOCKET = self.udp
+	-- END HACK
 	
 	World:start(love.window.getWidth(), love.window.getHeight())
 	World:setPlayer(args.id, args.pos, 'down')
@@ -257,6 +262,12 @@ function ClientGame:handleMessage(data)
 		pos = Vector.fromstring(pos)
 		World:setPlayer(self.id, pos, dir, "move")
 		self.moving = false
+	elseif data:match("drk ") then
+		-- Server has spawned a new drink, add it to our world
+		local drk_type, pos = data:match("drk (%w+) (%S+,%S+)")
+		drk_type = tonumber(drk_type)
+		pos = Vector.fromstring(pos)
+		World:addDrink(drk_type, pos)
 	else
 		assert(false, "Bad message: " .. data)
 	end
