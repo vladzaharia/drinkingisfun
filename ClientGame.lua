@@ -43,12 +43,14 @@ function ClientGame:update(dt)
 	World:update(dt)
 
 	-- Send client update to server
-	local pos = World:getPlayerPosition(self.id)
-	local dir = World:getPlayerDirection(self.id)
-	local msg = "upd " .. self.id .. " " .. pos .. " " .. dir
-	local result, err = self.udp:send(msg)
-	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
-		(err or "none"))
+	if not self.moving then
+		local pos = World:getPlayerPosition(self.id)
+		local dir = World:getPlayerDirection(self.id)
+		local msg = "upd " .. self.id .. " " .. pos .. " " .. dir
+		local result, err = self.udp:send(msg)
+		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+			(err or "none"))
+	end
 end
 
 function ClientGame:draw()
@@ -61,9 +63,7 @@ function ClientGame:draw()
 end
 
 function ClientGame:key(key, action)
-	
 	if action == "p" and not self.moving then
-		self.moving = true
 		local curPos = World:getPlayerPosition(self.id)
 		local curDir = World:getPlayerDirection(self.id)
 
@@ -78,15 +78,19 @@ function ClientGame:key(key, action)
 		elseif key == Keys.Space then
 			ClientGame:updatePos(curPos, curDir,'drink')
 		end
-
-		-- move this to the receive
-		self.moving = false
 	end
 end
 
 function ClientGame:updatePos(newPos, dir, action)
 	-- TODO: This function should send a message to server to update it
-	World:setPlayer(self.id, newPos, dir, action)
+	self.moving = true
+	local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
+	local result, err = self.udp:send(msg)
+	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+		(err or "none"))
+
+	World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
+
 end
 
 function ClientGame:mousePos(x,y)
@@ -111,6 +115,12 @@ function ClientGame:handleMessage(data)
 		id = tonumber(id)
 		assert(id ~= self.id, "got message to remove self from world")
 		World:removePlayer(id)
+	elseif data:match("acc ") then
+		-- handle player moving
+		local pos, dir = data:match("acc (%S+,%S+) (%a+)")
+		pos = Vector.fromstring(pos)
+		World:setPlayer(self.id, pos, dir, "stand")
+		self.moving = false
 	else
 		assert(false, "Bad message: " .. data)
 	end

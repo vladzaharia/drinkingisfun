@@ -107,6 +107,16 @@ function ServerGame:handleMessage(ip, port, data)
 		assert(tonumber(id) == client.id, "Bad client id for this client")
 		client.pos = Vector.fromstring(vec)
 		client.dir = dir
+	elseif data:match("req ") then
+		local id = self:getClientId(ip, port)
+		local client = self.clients[id]
+		local id,vec,dir = data:match("req (%w+) (%S+,%S+) (%a*)")
+		assert(tonumber(id) == client.id, "Bad client id for this client")
+		client.pos = Vector.fromstring(vec)
+		client.dir = dir
+		local result, err = self.udp:sendto("acc " .. client.pos .. " " .. client.dir, ip, port)
+			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+				(err or "none"))
 	else
 		assert(false, "Bad message: " .. data)
 	end

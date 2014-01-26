@@ -58,11 +58,10 @@ end
 
 function World:draw(playerPos)
 	-- We want to center the player and move everything, so calculate offset
-	yCenter = math.floor(self.height / (GRID_SIZE * 2))
-	xCenter = math.floor(self.width / (GRID_SIZE * 2))
-	centerPos = Vector(xCenter, yCenter)
-
-	offsetPos = centerPos - playerPos
+	local yCenter = math.floor(self.height / (GRID_SIZE * 2))
+	local xCenter = math.floor(self.width / (GRID_SIZE * 2))
+	local centerPos = Vector(xCenter, yCenter)
+	local offsetPos = centerPos - playerPos
 	
 	-- Draw the world
 	for y, row in pairs(self.world) do
