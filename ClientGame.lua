@@ -55,7 +55,6 @@ end
 
 function ClientGame:draw()
 	World:draw(World:getPlayerPosition(self.id), self.id)
-
 end
 
 function ClientGame:key(key, action)
@@ -73,6 +72,7 @@ function ClientGame:key(key, action)
 			ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
 		elseif key == Keys.Space then
 			ClientGame:updatePos(curPos, curDir,'drink')
+			World:consumeDrink(self.id)
 		end
 	end
 end

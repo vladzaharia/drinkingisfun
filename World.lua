@@ -8,6 +8,7 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
+local DRINK_CONTENT = {5, 5, 20, 15, 15, 10}
 local DRINK_TYPE_SIZE = 6
 local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/beerGreen.png',
@@ -125,7 +126,7 @@ function World:setPlayer(id, pos, dir, action)
 	local can_move = true
 
 	if not self.players[id] then
-		self.players[id] = {leftHand = 0, rightHand = 0}
+		self.players[id] = {leftHand = 0, rightHand = 0, bac = 0}
 	end
 
 	if not self.players[id].pAnim then
@@ -176,9 +177,13 @@ function World:getPlayerDirection(id)
 	return self.players[id].dir
 end
 
+function World:getPlayerBAC(id)
+	return self.players[id].bac
+end
+
 function World:drawDrink(type, pos, offset)
 	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
-	love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+	love.graphics.draw(drinkImage, (pos.x+offset.x)*GRID_SIZE-GRID_SIZE, (pos.y+offset.y)*GRID_SIZE-GRID_SIZE)
 end
 
 function World:drawInventory(dtype, x, y)
@@ -188,6 +193,18 @@ function World:drawInventory(dtype, x, y)
 	end
 end
 
+function World:consumeDrink(pid)
+	local player = self.players[pid]
+	if player.rightHand > 0 then
+		--do something with bar
+		player.bac = player.bac + DRINK_CONTENT[player.rightHand]
+		player.rightHand = 0
+	elseif player.leftHand > 0 then
+		--do something with bar
+		player.bac = player.bac + DRINK_CONTENT[player.leftHand]
+		player.leftHand = 0
+	end
+end
 
 function World:spawnDrink()
 	local freeSpace = false
