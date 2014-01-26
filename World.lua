@@ -4,6 +4,8 @@ local Map = require("Map")
 local playerAnimation = require("playerAnimation")
 local Assets = require("Assets")
 local SoundManager = require("SoundManager")
+local jukeboxAnimation = require("jukeboxAnimation")
+local jAnimation = jukeboxAnimation:new()
 local sManager = SoundManager:new()
 
 -- Size of players
@@ -11,13 +13,12 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
-local DRINK_CONTENT = {6, 6, 20, 15, 15, 10}
 local DRINK_CONTENT = {8, 8, 22, 16, 16, 12}
 local DRINK_TYPE_SIZE = 6
 
 -- BAC thresholds
 local BAC_THRESHOLD = {30, 70}
-local BAC_DECAY_RATE = {0.02, 0.04, 0.09}
+local BAC_DECAY_RATE = {0.02, 0.03, 0.07}
 
 local SCORE_MULTIPLIER = {0.05, 0.1, 0.15}
 
@@ -32,6 +33,9 @@ local bloomShader = love.graphics.newShader("bloom.fs")
 
 -- timer
 local sTime = 0
+
+-- Check if song was just changed
+local song_changed = 1
 
 function World:start(width, height)
 	self.width = width;
@@ -52,6 +56,7 @@ function World:start(width, height)
 	--start the music
 	sManager:init()
 	sManager:startMusic()
+	jAnimation:init()
 end
 
 function World:stop()
@@ -70,13 +75,19 @@ function World:update(dt)
 		return
 	end
 
+	jAnimation:update(dt)
+
 	for id, player in pairs(self.players) do
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
-		p.pAnim:update(p.dir, p.action, dt)
+		local pAction = p.action
+		if(World:inPool(p.pos)) then
+			pAction = 'swim'
+		end
+		p.pAnim:update(p.dir, pAction, dt)
 
 		World:decayBAC(id)
-		World:addScore(id)
+		
 
 		if player.action == 'drink' then
 			if not player.drinkTime then
@@ -110,6 +121,11 @@ function World:update(dt)
 	end
 
 	sTime = sTime + love.timer.getAverageDelta()
+
+	--check song stuff
+	if song_changed > 0 then
+		song_changed = song_changed - 0.005
+	end
 end
 
 
@@ -189,8 +205,11 @@ function World:draw(pid)
 	love.graphics.reset()
 	World:drawPlayers()
 	love.graphics.reset()
+	World:drawJukebox()
+	love.graphics.reset()
 	World:drawHUD(pid)
 	love.graphics.reset()
+
 end
 
 function World:calculateOffset(pid)
@@ -259,7 +278,6 @@ function World:drawPlayers()
 
 		if finalPos then
 			--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
-			love.graphics.reset()
 			self.players[id].pAnim:draw(finalPos.x, finalPos.y)
 		end
 	end	
@@ -267,6 +285,18 @@ end
 
 function World:handleJukeBox()
 	sManager:playNext()
+	song_changed = 1
+	return sManager:getSong()
+end
+
+function World:switchSong(id)
+	sManager:playSong(id)
+	song_changed = 1
+end
+
+function World:drawJukebox()
+	jukeboxPos = Vector(14*GRID_SIZE+offsetPos.x-GRID_SIZE,14*GRID_SIZE+offsetPos.y-GRID_SIZE)
+	jAnimation:draw(jukeboxPos.x,jukeboxPos.y)
 end
 
 function World:drawHUD(pid)
@@ -328,6 +358,16 @@ function World:drawHUD(pid)
 		love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100, (92/2)-8)
 	end
 
+	-- Song Changed
+	if song_changed > 0 then
+		love.graphics.setColor(255,255,255,255)
+		love.graphics.rectangle("fill", 460, 20, 320, 30)
+		local music = love.graphics.newImage("Assets/Music.png")
+		love.graphics.draw(music, 465, 25)
+		love.graphics.setColor(0,0,0,255)
+		love.graphics.print("Currently Playing: " .. sManager:getSongName(), 495, 30)
+	end
+
 end
 
 function World:setPlayer(id, pos, dir, action)
@@ -339,8 +379,10 @@ function World:setPlayer(id, pos, dir, action)
 							loser = false}
 	end
 
+	World:addScore(id)
+
 	if not self.players[id].pAnim then
-		self.players[id].pAnim = playerAnimation:new()
+		self.players[id].pAnim = playerAnimation:new(playerAnimation:getColor(id))
 		self.players[id].pAnim:init()
 	end
 
@@ -355,6 +397,11 @@ function World:setPlayer(id, pos, dir, action)
 	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
 
 	return self.players[id].pos
+
+end
+
+function World:setPlayerScore(id, scr)
+	self.players[id].score = scr
 end
 
 function World:checkIfDrowned(id)
@@ -362,6 +409,10 @@ function World:checkIfDrowned(id)
 	if self.world[pos.y][pos.x] == "P" and self.players[id].bac > BAC_THRESHOLD[2] then
 		self.players[id].loser = true
 	end
+end
+
+function World:inPool(pos)
+	return self.world[pos.y][pos.x] == "P"
 end
 
 function World:isPossibleMove(pos)
@@ -397,6 +448,10 @@ end
 
 function World:getPlayerBAC(id)
 	return self.players[id].bac
+end
+
+function World:addToPlayerBAC(id, amt)
+	self.players[id].bac = self.players[id].bac + amt
 end
 
 function World:isPlayerMoving(id)
