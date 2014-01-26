@@ -173,12 +173,13 @@ function World:draw(pid)
 	end
 
 	World:calculateOffset(pid)
-	
-	love.graphics.setShader(bloomShader)
-	bloomShader:send("BAC", World:getPlayerBAC(pid))
-	bloomShader:send("cScale", World:getPlayerBAC(pid)*0.003)
-	bloomShader:send("eTime", sTime)
-	bloomShader:send("bloomStatus", self.bloomStatus)
+	if self.bloomStatus then
+		love.graphics.setShader(bloomShader)
+		bloomShader:send("BAC", World:getPlayerBAC(pid))
+		bloomShader:send("cScale", World:getPlayerBAC(pid)*0.003)
+		bloomShader:send("eTime", sTime)
+		bloomShader:send("bloomStatus", self.bloomStatus)
+	end
 
 	World:drawBackground()
 	love.graphics.reset()
