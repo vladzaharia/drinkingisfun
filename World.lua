@@ -31,6 +31,7 @@ function World:start(width, height)
 	self.platforms = {}
 	self.world = Map:getExampleWorld(width, height)
 	self.drinks = {}
+	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 
 	---test making drinks
 	for i=1, 3 do
@@ -141,6 +142,8 @@ end
 
 function World:drawBackground()
 	-- Draw the world
+	love.graphics.draw(self.mapImage, offsetPos.x-GRID_SIZE, offsetPos.y-GRID_SIZE)
+
 	for y, row in pairs(self.world) do
 		for x, item in pairs(row) do
 			if item then
