@@ -2,6 +2,7 @@
 local Keys =
 {
 	Backspace	= "backspace",
+	Space		= " ",
 	Enter 		= "return",
 	Esc			= "escape",
 	Left		= "left",

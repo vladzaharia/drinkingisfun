@@ -60,18 +60,22 @@ function ClientGame:draw()
 end
 
 function ClientGame:key(key, action)
+	
 	if action == "p" and not self.moving then
 		self.moving = true
 		curPos = World:getPlayerPosition(self.id)
+		curDir = World:getPlayerDirection(self.id)
 
 		if key == Keys.Up then
-			ClientGame:updatePos(curPos - Vector(0, 1))
+			ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
 		elseif key == Keys.Down then
-			ClientGame:updatePos(curPos - Vector(0, -1))
+			ClientGame:updatePos(curPos - Vector(0, -1), 'down','walk')
 		elseif key == Keys.Left then
-			ClientGame:updatePos(curPos - Vector(1, 0))
+			ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
 		elseif key == Keys.Right then
-			ClientGame:updatePos(curPos - Vector(-1, 0))
+			ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
+		elseif key == Keys.Space then
+			ClientGame:updatePos(curPos, curDir,'drink')
 		end
 
 		-- move this to the receive
@@ -79,9 +83,9 @@ function ClientGame:key(key, action)
 	end
 end
 
-function ClientGame:updatePos(newPos)
+function ClientGame:updatePos(newPos, dir, action)
 	-- TODO: This function should send a message to server to update it
-	World:setPlayer(self.id, newPos)
+	World:setPlayer(self.id, newPos, dir, action)
 end
 
 function ClientGame:mousePos(x,y)

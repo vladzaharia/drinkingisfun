@@ -40,6 +40,8 @@ function World:update(dt)
 	-- check for item to pickup, item currently goes into the abyss
 	for id, player in pairs(self.players) do
 		World:pickUp(id, self.players[id].pos)
+		local p = self.players[id]
+		p.pAnim:update(p.dir, p.action, dt)
 	end
 
 	--spawn drink
@@ -71,11 +73,13 @@ function World:draw(playerPos)
 	end
 
 	-- Players
-	love.graphics.setColor(255, 0, 0, 255)
+	--love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
 		local pos = player.pos
 		if pos then
-			love.graphics.rectangle("fill", (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+			--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
+			love.graphics.reset()
+			self.players[id].pAnim:draw((pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 		end
 	end
 
@@ -90,12 +94,17 @@ function World:draw(playerPos)
 	end
 end
 
-function World:setPlayer(id, pos)
+function World:setPlayer(id, pos, dir, action)
 	-- TODO: Check if colliding into something locally
 	local can_move = true
 
 	if not self.players[id] then
 		self.players[id] = {}
+	end
+
+	if not self.players[id].pAnim then
+		self.players[id].pAnim = require("playerAnimation")
+		self.players[id].pAnim:init()
 	end
 
 	for _, player in pairs(self.players) do
@@ -118,6 +127,10 @@ function World:setPlayer(id, pos)
 		end
 	end
 
+	-- set direction and action for animations
+	self.players[id].dir = dir
+	self.players[id].action = action or 'stand'
+
 	if can_move then
 		self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
 	end
@@ -127,6 +140,10 @@ end
 
 function World:getPlayerPosition(id)
 	return self.players[id].pos
+end
+
+function World:getPlayerDirection(id)
+	return self.players[id].dir
 end
 
 function World:spawnDrink()
