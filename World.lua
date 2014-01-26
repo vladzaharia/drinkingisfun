@@ -31,6 +31,7 @@ function World:start(width, height)
 	self.platforms = {}
 	self.world = Map:getExampleWorld(width, height)
 	self.drinks = {}
+	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 
 	---test making drinks
 	for i=1, 3 do
@@ -141,6 +142,8 @@ end
 
 function World:drawBackground()
 	-- Draw the world
+	love.graphics.draw(self.mapImage, offsetPos.x-GRID_SIZE, offsetPos.y-GRID_SIZE)
+
 	for y, row in pairs(self.world) do
 		for x, item in pairs(row) do
 			if item then
@@ -331,13 +334,11 @@ function World:consumeDrink(pid)
 		player.bac = player.bac + DRINK_CONTENT[player.rightHand]
 		player.rightHand = 0
 		sManager:drink()
-		--sManager.swallow.play()
 	elseif player.leftHand > 0 then
 		--do something with bar
 		player.bac = player.bac + DRINK_CONTENT[player.leftHand]
 		player.leftHand = 0
 		sManager:drink()
-		--sManager.swallow.play()
 	end
 end
 
@@ -385,9 +386,11 @@ function World:pickUp(pid, ppos)
 			if self.players[pid].leftHand == 0 then
 				self.players[pid].leftHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			elseif self.players[pid].rightHand == 0 then
 				self.players[pid].rightHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			end
 			--two hands only, don't be greedy
 			--table.remove(self.drinks, id)
