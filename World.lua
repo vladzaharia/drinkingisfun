@@ -96,7 +96,7 @@ function World:update(dt)
 			end
 		end
 
-		if player.action == 'move' then
+		if player.action == 'move' and not player.loser then
 			-- Play footsteps
 			sManager:walk()
 			if not player.moveTime then
@@ -126,6 +126,7 @@ function World:decayBAC(id)
 	--please enjoy responsibly
 	if pbac > 100 then
 		self.players[id].loser = true
+		self.players[id].loserType = 'wasted'
 		return
 	end
 
@@ -142,6 +143,7 @@ function World:decayBAC(id)
 	if (pbac - penalty) < 0 then
 		self.players[id].bac = 0
 		self.players[id].loser = true
+		self.players[id].loserType = 'sober'
 	else
 		self.players[id].bac = pbac - penalty
 	end
@@ -174,7 +176,7 @@ end
 
 function World:draw(pid)
 	if self.players[pid].loser == true and not self.players[pid].moveTime then
-		World:drawGameOver()
+		World:drawGameOver(self.players[pid].loserType)
 
 		return
 	end
@@ -247,8 +249,8 @@ function World:drawDrink(type, pos, offset)
 	love.graphics.draw(drinkImage, pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 end
 
-function World:drawGameOver()
-	love.graphics.draw(Assets:getGameOverImage())
+function World:drawGameOver(type)
+	love.graphics.draw(Assets:getGameOverImage(type))
 	sManager:stopMusic()
 	sManager:startGameOverMusic()
 end
@@ -398,6 +400,7 @@ function World:checkIfDrowned(id)
 	local pos = self.players[id].pos
 	if self.world[pos.y][pos.x] == "P" and self.players[id].bac > BAC_THRESHOLD[2] then
 		self.players[id].loser = true
+		self.players[id].loserType = 'pool'
 	end
 end
 

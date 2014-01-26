@@ -28,9 +28,15 @@ local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
 							'Assets/Profile/portraitTipsy.png',
 							'Assets/Profile/portraitDrunk.png'}
 
-local GAME_OVER_SCREEN = 'Assets/Screens/GameOver.png'
+local GAME_OVER_SCREEN_WASTED = 'Assets/Screens/GameOver.png'
+local GAME_OVER_SCREEN_SOBER = 'Assets/Screens/GameOver.png'
+local GAME_OVER_SCREEN_POOL = 'Assets/Screens/GameOverPool.png'
 
-Assets.gameOverImage = love.graphics.newImage(GAME_OVER_SCREEN)
+Assets.gameOverImage = {
+	love.graphics.newImage(GAME_OVER_SCREEN_WASTED),
+	love.graphics.newImage(GAME_OVER_SCREEN_SOBER),
+	love.graphics.newImage(GAME_OVER_SCREEN_POOL)
+}
 Assets.leftHandImage = {
 	love.graphics.newImage(LEFT_HAND_FILE_NAME[1]),
 	love.graphics.newImage(LEFT_HAND_FILE_NAME[2]),
@@ -63,8 +69,14 @@ Assets.profileImage = {
 	love.graphics.newImage(PROFILE_FILE_NAME[3]),
 }
 
-function Assets:getGameOverImage()
-	return self.gameOverImage
+function Assets:getGameOverImage(type)
+	if type == 'pool' then
+		return self.gameOverImage[3]
+	elseif type == 'sober' then
+		return self.gameOverImage[2]
+	else
+		return self.gameOverImage[1]
+	end
 end
 
 function Assets:getLeftHandImage(index)
