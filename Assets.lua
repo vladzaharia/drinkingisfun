@@ -29,7 +29,7 @@ local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
 							'Assets/Profile/portraitDrunk.png'}
 
 local GAME_OVER_SCREEN_WASTED = 'Assets/Screens/GameOver.png'
-local GAME_OVER_SCREEN_SOBER = 'Assets/Screens/GameOver.png'
+local GAME_OVER_SCREEN_SOBER = 'Assets/Screens/GameOverAlone.png'
 local GAME_OVER_SCREEN_POOL = 'Assets/Screens/GameOverPool.png'
 
 Assets.gameOverImage = {
