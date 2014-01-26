@@ -150,17 +150,15 @@ end
 
 function ClientGame:updatePos(newPos, dir, action)
 	if action ~= "drink" then
-		if World:isPossibleMove(newPos) then
-			-- request the move from the server
-			self.moving = true
-			local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
-			local result, err = self.udp:send(msg)
-			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
-				(err or "none"))
+		-- request the move from the server
+		self.moving = true
+		local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
+		local result, err = self.udp:send(msg)
+		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+			(err or "none"))
 
-			-- same position, but walking now
-			World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
-		end
+		-- same position, but walking now
+		World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
 	else 
 		World:setPlayer(self.id, newPos, dir, "drink")
 	end
@@ -187,7 +185,7 @@ function ClientGame:handleMessage(data)
 				newPos = World:setPlayer(id, pos, dir, "move")
 			end
 				
-			assert(newPos == pos, "failed updated position")
+			--assert(newPos == pos, "failed updated position")
 		end
 	elseif data:match("dis ") then
 		-- remove a player from the game
