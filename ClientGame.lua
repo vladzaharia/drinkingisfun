@@ -64,14 +64,14 @@ function ClientGame:update(dt)
 end
 
 function ClientGame:draw()
-	World:draw(World:getPlayerPosition(self.id), self.id)
+	World:draw(self.id)
 	bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
 	love.graphics.print("Regret: " .. bac, 100, 580)
 
 end
 
 function ClientGame:key(key, action)
-	if action == "p" and not self.moving then
+	if (action == "p" or action == "re") and not self.moving and not World:isPlayerMoving(self.id) then
 		local curPos = World:getPlayerPosition(self.id)
 		local curDir = World:getPlayerDirection(self.id)
 		-- stumble walking
@@ -145,15 +145,17 @@ end
 
 function ClientGame:updatePos(newPos, dir, action)
 	if action ~= "drink" then
-		-- request the move from the server
-		self.moving = true
-		local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
-		local result, err = self.udp:send(msg)
-		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
-			(err or "none"))
+		if World:isPossibleMove(newPos) then
+			-- request the move from the server
+			self.moving = true
+			local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
+			local result, err = self.udp:send(msg)
+			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+				(err or "none"))
 
-		-- same position, but walking now
-		World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
+			-- same position, but walking now
+			World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
+		end
 	else 
 		World:setPlayer(self.id, newPos, dir, "drink")
 	end
@@ -175,7 +177,11 @@ function ClientGame:handleMessage(data)
 			id = tonumber(id)
 			pos = Vector.fromstring(pos)
 			assert(id ~= self.id, "got update for self which is nonsense")
-			local newPos = World:setPlayer(id, pos, dir)
+			local oldPos = World:getPlayerPosition(id)
+			if oldPos ~= pos then
+				newPos = World:setPlayer(id, pos, dir, "move")
+			end
+				
 			assert(newPos == pos, "failed updated position")
 		end
 	elseif data:match("dis ") then
@@ -189,7 +195,7 @@ function ClientGame:handleMessage(data)
 		-- we'll need to smooth this out somehow
 		local pos, dir = data:match("acc (%S+,%S+) (%a+)")
 		pos = Vector.fromstring(pos)
-		World:setPlayer(self.id, pos, dir, "stand")
+		World:setPlayer(self.id, pos, dir, "move")
 		self.moving = false
 	else
 		assert(false, "Bad message: " .. data)

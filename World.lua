@@ -2,25 +2,21 @@
 local World = {}
 local Map = require("Map")
 local playerAnimation = require("playerAnimation")
+local Assets = require("Assets")
+local SoundManager = require("SoundManager")
+local sManager = SoundManager:new()
 
 -- Size of players
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
-local DRINK_CONTENT = {7, 7, 21, 14, 14, 10}
+local DRINK_CONTENT = {6, 6, 20, 15, 15, 10}
 local DRINK_TYPE_SIZE = 6
-local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
-						 'Assets/drinks/beerGreen.png',
-						 'Assets/drinks/ice.png',
-						 'Assets/drinks/shotJello.png',
-						 'Assets/drinks/shotTequila.png',
-						 'Assets/drinks/wine.png'}
 
--- Types of profiles
-local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
-							'Assets/Profile/portraitTipsy.png',
-							'Assets/Profile/portraitDrunk.png'}
+-- BAC thresholds
+local BAC_THRESHOLD = {30, 70}
+local BAC_DECAY_RATE = {0.05, 0.07, 0.12}
 
 -- status colours
 local BACKGROUND_GREEN = {154,205,50,255}
@@ -35,11 +31,15 @@ function World:start(width, height)
 	self.platforms = {}
 	self.world = Map:getExampleWorld(width, height)
 	self.drinks = {}
+	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 
 	---test making drinks
 	for i=1, 3 do
 		World:spawnDrink()
 	end
+
+	--start the music
+	sManager:startMusic()
 end
 
 function World:stop()
@@ -51,15 +51,37 @@ end
 
 function World:update(dt)
 	-- check for item to pickup, item currently goes into the abyss
+	-- also stop drinking
+	-- also update bac
 	for id, player in pairs(self.players) do
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
 		p.pAnim:update(p.dir, p.action, dt)
 
+		World:decayBAC(id)
 
-		player.bac = player.bac - 0.07
-		if player.bac < 0 then 
-			player.bac = 0 
+		if player.action == 'drink' then
+			if not player.drinkTime then
+				player.drinkTime = 0
+			elseif player.drinkTime >= 1 then
+				player.action = 'stand'
+				player.drinkTime = nil
+			else
+				player.drinkTime = player.drinkTime + 0.03
+			end
+		end
+
+		if player.action == 'move' then
+			-- Play footsteps
+			sManager:walk()
+			if not player.moveTime then
+				player.moveTime = 0
+			elseif player.moveTime >= 1 then
+				player.action = 'stand'
+				player.moveTime = nil
+			else
+				player.moveTime = player.moveTime + 0.06
+			end
 		end
 	end
 
@@ -70,12 +92,32 @@ function World:update(dt)
 	end
 end
 
-function World:draw(playerPos, pid)
-	-- We want to center the player and move everything, so calculate offset
-	local yCenter = math.floor(self.height / (GRID_SIZE * 2))
-	local xCenter = math.floor(self.width / (GRID_SIZE * 2))
-	local centerPos = Vector(xCenter, yCenter)
-	offsetPos = centerPos - playerPos
+
+function World:decayBAC(id)
+	local pbac = self.players[id].bac
+
+	--please enjoy responsibly
+	if pbac > 100 then
+		return
+	end
+
+	if pbac > BAC_THRESHOLD[1] then
+		if pbac < BAC_THRESHOLD[2] then
+			self.players[id].bac = pbac - BAC_DECAY_RATE[2]
+		else
+			self.players[id].bac = pbac - BAC_DECAY_RATE[3]
+		end
+	else
+		self.players[id].bac = pbac - BAC_DECAY_RATE[1]
+	end
+
+	if self.players[id].bac < 0 then
+		self.players[id].bac = 0
+	end
+end
+
+function World:draw(pid)
+	World:calculateOffset(pid)
 	
 	World:drawBackground()
 	World:drawDrinks()
@@ -83,8 +125,25 @@ function World:draw(playerPos, pid)
 	World:drawHUD(pid)
 end
 
+function World:calculateOffset(pid)
+	-- We want to center the player and move everything, so calculate offset
+	local player = self.players[pid]
+	local playerPos = player.pos
+	local yCenter = math.floor(self.height / (GRID_SIZE * 2))
+	local xCenter = math.floor(self.width / (GRID_SIZE * 2))
+	local centerPos = Vector(xCenter, yCenter)
+	offsetPos = (centerPos - playerPos) * Vector(GRID_SIZE, GRID_SIZE)
+
+	if player.action == "move" then
+		local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * (1-player.moveTime), GRID_SIZE * (1-player.moveTime))
+		offsetPos = offsetPos + posDiff
+	end
+end
+
 function World:drawBackground()
 	-- Draw the world
+	love.graphics.draw(self.mapImage, offsetPos.x-GRID_SIZE, offsetPos.y-GRID_SIZE)
+
 	for y, row in pairs(self.world) do
 		for x, item in pairs(row) do
 			if item then
@@ -92,7 +151,7 @@ function World:drawBackground()
 					love.graphics.setColor(0, 0, 255, 255)
 				end
 
-				love.graphics.rectangle("fill", (x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (y+offsetPos.y)*GRID_SIZE-GRID_SIZE, GRID_SIZE, GRID_SIZE)
+				love.graphics.rectangle("fill", x*GRID_SIZE+offsetPos.x-GRID_SIZE, y*GRID_SIZE+offsetPos.y-GRID_SIZE, GRID_SIZE, GRID_SIZE)
 			end
 		end
 	end
@@ -103,15 +162,12 @@ function World:drawDrinks()
 	love.graphics.reset()
 	for id, drink in pairs(self.drinks) do
 		World:drawDrink(drink.type, drink.pos, offsetPos)
-		--local pos = drink.pos
-		--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
-		--love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 	end
 end
 
 function World:drawDrink(type, pos, offset)
-	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
-	love.graphics.draw(drinkImage, (pos.x+offset.x)*GRID_SIZE-GRID_SIZE, (pos.y+offset.y)*GRID_SIZE-GRID_SIZE)
+	local drinkImage = Assets:getDrinkImage(type)
+	love.graphics.draw(drinkImage, pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 end
 
 function World:drawPlayers()
@@ -119,10 +175,19 @@ function World:drawPlayers()
 	--love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
 		local pos = player.pos
-		if pos then
+		finalPos = Vector(pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
+
+		if player.action == 'move' then
+			print(player.pos, player.oldPos)
+			local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * player.moveTime, GRID_SIZE * player.moveTime)
+			finalPos = Vector(player.oldPos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, player.oldPos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
+			finalPos = finalPos + posDiff
+		end
+
+		if finalPos then
 			--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
 			love.graphics.reset()
-			self.players[id].pAnim:draw((pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+			self.players[id].pAnim:draw(finalPos.x, finalPos.y)
 		end
 	end	
 end
@@ -136,13 +201,13 @@ function World:drawHUD(pid)
 
 	-- profile place holder
 	love.graphics.reset()
-	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
+	local profileImage = Assets:getProfileImage(1)
 	local playerBAC = World:getPlayerBAC(pid)
-	if playerBAC > 50 then 
-		if playerBAC < 100 then
-			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[2])
+	if playerBAC > BAC_THRESHOLD[1] then 
+		if playerBAC < BAC_THRESHOLD[2] then
+			profileImage = Assets:getProfileImage(2)
 		else 
-			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[3])
+			profileImage = Assets:getProfileImage(3)
 		end
 	end
 
@@ -152,15 +217,11 @@ function World:drawHUD(pid)
 	local leftHand = self.players[pid].leftHand
 	local rightHand = self.players[pid].rightHand
 
-	if leftHand > 0 then
-		local leftInvImage = love.graphics.newImage(DRINK_FILE_NAME[leftHand])
-		love.graphics.draw(leftInvImage, 100, self.height - 88)
-	end
+	local leftInvImage = Assets:getLeftHandImage(leftHand+1)
+	love.graphics.draw(leftInvImage, 100, self.height - 90)
 
-	if rightHand > 0 then
-		local rightInvImage = love.graphics.newImage(DRINK_FILE_NAME[rightHand])
-		love.graphics.draw(rightInvImage, 155, self.height - 88)
-	end
+	local rightInvImage = Assets:getRightHandImage(rightHand+1)
+	love.graphics.draw(rightInvImage, 155, self.height - 90)
 
 	-- Drunk-o-meter
 	love.graphics.setColor(0,0,0,255)
@@ -168,13 +229,13 @@ function World:drawHUD(pid)
 	love.graphics.setColor(255,255,255,255)
 	love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, (self.width/2)-8 , (92/2)-8)
 
-	if playerBAC > 50 then 
-		if playerBAC < 100 then
+	if playerBAC > BAC_THRESHOLD[1] then 
+		if playerBAC < BAC_THRESHOLD[2] then
 			love.graphics.setColor(STATUS_GREEN)
 			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100 , (92/2)-8)
 		else 
 			love.graphics.setColor(STATUS_RED)
-			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, (self.width/2)-8 , (92/2)-8)
+			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100 , (92/2)-8)
 		end
 	else
 		love.graphics.setColor(STATUS_YELLOW)
@@ -184,17 +245,34 @@ function World:drawHUD(pid)
 end
 
 function World:setPlayer(id, pos, dir, action)
-	-- TODO: Check if colliding into something locally
-	local can_move = true
-
 	if not self.players[id] then
-		self.players[id] = {leftHand = 0, rightHand = 0, bac = 0}
+		self.players[id] = {leftHand = 0, 
+							rightHand = 0, 
+							bac = 30, 
+							score = 0,
+							loser = false}
 	end
 
 	if not self.players[id].pAnim then
 		self.players[id].pAnim = playerAnimation:new()
 		self.players[id].pAnim:init()
 	end
+
+	-- set direction and action for animations
+	self.players[id].dir = dir
+	self.players[id].action = action or 'stand'
+
+	if action == 'move' then
+		self.players[id].oldPos = self.players[id].pos or pos
+	end
+
+	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
+
+	return self.players[id].pos
+end
+
+function World:isPossibleMove(pos)
+	can_move = true
 
 	for _, player in pairs(self.players) do
 		if pos == player.pos then
@@ -216,15 +294,7 @@ function World:setPlayer(id, pos, dir, action)
 		end
 	end
 
-	-- set direction and action for animations
-	self.players[id].dir = dir
-	self.players[id].action = action or 'stand'
-
-	if can_move then
-		self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
-	end
-
-	return self.players[id].pos
+	return can_move
 end
 
 function World:removePlayer(id)
@@ -232,7 +302,9 @@ function World:removePlayer(id)
 end
 
 function World:getPlayerPosition(id)
-	return self.players[id].pos
+	if self.players[id] then
+		return self.players[id].pos or Vector(0,0)
+	end
 end
 
 function World:getPlayerDirection(id)
@@ -243,9 +315,14 @@ function World:getPlayerBAC(id)
 	return self.players[id].bac
 end
 
+function World:isPlayerMoving(id)
+	return self.players[id].moveTime ~= nil
+end
+
 function World:drawInventory(dtype, x, y)
 	if not dtype == 0 then
-		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+		--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+		local drinkImage = Assets.getDrinkImage(type)
 		love.graphics.draw(drinkImage, x, y)
 	end
 end
@@ -256,10 +333,12 @@ function World:consumeDrink(pid)
 		--do something with bar
 		player.bac = player.bac + DRINK_CONTENT[player.rightHand]
 		player.rightHand = 0
+		sManager:drink()
 	elseif player.leftHand > 0 then
 		--do something with bar
 		player.bac = player.bac + DRINK_CONTENT[player.leftHand]
 		player.leftHand = 0
+		sManager:drink()
 	end
 end
 
@@ -307,9 +386,11 @@ function World:pickUp(pid, ppos)
 			if self.players[pid].leftHand == 0 then
 				self.players[pid].leftHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			elseif self.players[pid].rightHand == 0 then
 				self.players[pid].rightHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			end
 			--two hands only, don't be greedy
 			--table.remove(self.drinks, id)
