@@ -33,6 +33,7 @@ function World:start(width, height)
 	self.platforms = {}
 	self.world = Map:getExampleWorld(width, height)
 	self.drinks = {}
+	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 
 	---test making drinks
 	for i=1, 3 do
@@ -171,6 +172,8 @@ end
 
 function World:drawBackground()
 	-- Draw the world
+	love.graphics.draw(self.mapImage, offsetPos.x-GRID_SIZE, offsetPos.y-GRID_SIZE)
+
 	for y, row in pairs(self.world) do
 		for x, item in pairs(row) do
 			if item then
@@ -205,6 +208,7 @@ function World:drawPlayers()
 		finalPos = Vector(pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 
 		if player.action == 'move' then
+			print(player.pos, player.oldPos)
 			local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * player.moveTime, GRID_SIZE * player.moveTime)
 			finalPos = Vector(player.oldPos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, player.oldPos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 			finalPos = finalPos + posDiff
@@ -298,7 +302,7 @@ function World:setPlayer(id, pos, dir, action)
 	self.players[id].action = action or 'stand'
 
 	if action == 'move' then
-		self.players[id].oldPos = self.players[id].pos
+		self.players[id].oldPos = self.players[id].pos or pos
 	end
 
 	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
@@ -337,7 +341,9 @@ function World:removePlayer(id)
 end
 
 function World:getPlayerPosition(id)
-	return self.players[id].pos
+	if self.players[id] then
+		return self.players[id].pos or Vector(0,0)
+	end
 end
 
 function World:getPlayerDirection(id)
@@ -367,13 +373,11 @@ function World:consumeDrink(pid)
 		player.bac = player.bac + DRINK_CONTENT[player.rightHand]
 		player.rightHand = 0
 		sManager:drink()
-		--sManager.swallow.play()
 	elseif player.leftHand > 0 then
 		--do something with bar
 		player.bac = player.bac + DRINK_CONTENT[player.leftHand]
 		player.leftHand = 0
 		sManager:drink()
-		--sManager.swallow.play()
 	end
 end
 
@@ -421,9 +425,11 @@ function World:pickUp(pid, ppos)
 			if self.players[pid].leftHand == 0 then
 				self.players[pid].leftHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			elseif self.players[pid].rightHand == 0 then
 				self.players[pid].rightHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			end
 			--two hands only, don't be greedy
 			--table.remove(self.drinks, id)
