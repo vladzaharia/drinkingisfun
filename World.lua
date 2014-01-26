@@ -227,8 +227,6 @@ function World:drawHUD(pid)
 end
 
 function World:setPlayer(id, pos, dir, action)
-	local can_move = true
-
 	if not self.players[id] then
 		self.players[id] = {leftHand = 0, rightHand = 0, bac = 0}
 	end
@@ -237,6 +235,22 @@ function World:setPlayer(id, pos, dir, action)
 		self.players[id].pAnim = playerAnimation:new()
 		self.players[id].pAnim:init()
 	end
+
+	-- set direction and action for animations
+	self.players[id].dir = dir
+	self.players[id].action = action or 'stand'
+
+	if action == 'move' then
+		self.players[id].oldPos = self.players[id].pos
+	end
+
+	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
+
+	return self.players[id].pos
+end
+
+function World:isPossibleMove(pos)
+	can_move = true
 
 	for _, player in pairs(self.players) do
 		if pos == player.pos then
@@ -258,19 +272,7 @@ function World:setPlayer(id, pos, dir, action)
 		end
 	end
 
-	-- set direction and action for animations
-	self.players[id].dir = dir
-	self.players[id].action = action or 'stand'
-
-	if can_move then
-		if action == 'move' then
-			self.players[id].oldPos = self.players[id].pos
-		end
-
-		self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
-	end
-
-	return self.players[id].pos
+	return can_move
 end
 
 function World:removePlayer(id)
