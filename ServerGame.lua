@@ -38,7 +38,7 @@ function ServerGame:update(dt)
 		local send = false
 		for other_id, other_client in pairs(self.clients) do 
 			if other_id ~= id then
-				msg = msg .. other_client.id .. " " .. other_client.pos .. ";"
+				msg = msg .. other_client.id .. " " .. other_client.pos .. " " .. other_client.dir .. ";"
 				send = true
 			end
 		end
@@ -103,9 +103,10 @@ function ServerGame:handleMessage(ip, port, data)
 	elseif data:match("upd ") then
 		local id = self:getClientId(ip, port)
 		local client = self.clients[id]
-		local id,vec = data:match("upd (%w*) (%S*,%S*)")
+		local id,vec,dir = data:match("upd (%w+) (%S+,%S+) (%a*)")
 		assert(tonumber(id) == client.id, "Bad client id for this client")
 		client.pos = Vector.fromstring(vec)
+		client.dir = dir
 	else
 		assert(false, "Bad message: " .. data)
 	end
@@ -120,7 +121,7 @@ function ServerGame:getClientContact(id)
 end
 
 function ServerGame:newClient() 
-	local client = { id = self.nextClientId, pos = Vector(self.nextClientId+2,2) }
+	local client = { id = self.nextClientId, pos = Vector(self.nextClientId+2,2), dir = "down" }
 	self.nextClientId = self.nextClientId + 1
 	return client
 end

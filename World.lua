@@ -1,6 +1,7 @@
 
 local World = {}
 local Map = require("Map")
+local playerAnimation = require("playerAnimation")
 
 -- Size of players
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
@@ -115,7 +116,7 @@ function World:setPlayer(id, pos, dir, action)
 	end
 
 	if not self.players[id].pAnim then
-		self.players[id].pAnim = require("playerAnimation")
+		self.players[id].pAnim = playerAnimation:new()
 		self.players[id].pAnim:init()
 	end
 
