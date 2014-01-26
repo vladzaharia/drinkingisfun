@@ -184,7 +184,7 @@ end
 
 function World:drawBackground()
 	-- Draw the world
-	love.graphics.draw(self.mapImage, offsetPos.x-GRID_SIZE, offsetPos.y-GRID_SIZE)
+	love.graphics.draw(self.mapImage, offsetPos.x, offsetPos.y)
 
 	for y, row in pairs(self.world) do
 		for x, item in pairs(row) do
@@ -220,7 +220,6 @@ function World:drawPlayers()
 		finalPos = Vector(pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 
 		if player.action == 'move' then
-			print(player.pos, player.oldPos)
 			local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * player.moveTime, GRID_SIZE * player.moveTime)
 			finalPos = Vector(player.oldPos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, player.oldPos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 			finalPos = finalPos + posDiff
