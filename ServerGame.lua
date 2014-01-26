@@ -52,7 +52,7 @@ function ServerGame:update(dt)
 		local msg = "upd "
 		local send = false
 		for other_desc, other_client in pairs(self.clients) do 
-			if other_desc ~= desc then
+			if other_desc ~= desc and other_client.updated then
 				msg = msg .. other_client.id .. " " .. other_client.pos .. " " .. other_client.dir .. " " .. other_client.score .. ";"
 				send = true
 			end
@@ -60,6 +60,11 @@ function ServerGame:update(dt)
 		if send then
 			self.udp:sendto(msg, ip, tonumber(port))
 		end
+	end
+
+	-- Mark all clients as clean
+	for desc, client in pairs(self.clients) do
+		client.updated = false
 	end
 
 	-- Check if any of our clients have timed out and remove them from the game
@@ -123,6 +128,7 @@ function ServerGame:handleMessage(ip, port, data)
 		client.pos = Vector.fromstring(vec)
 		client.dir = dir
 		client.score = scr
+		client.updated = true
 	elseif data:match("req ") then
 		local client = self.clients[desc]
 		local id,vec,dir = data:match("req (%w+) (%S+,%S+) (%a*)")
@@ -130,8 +136,9 @@ function ServerGame:handleMessage(ip, port, data)
 		local newPos = Vector.fromstring(vec)
 		if self:isPossibleMove(newPos) then
 			client.pos = newPos
-		end		
+		end
 		client.dir = dir
+		client.updated = true
 		local result, err = self.udp:sendto("acc " .. client.pos .. " " .. client.dir, ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
 	elseif data:match("juke ") then
@@ -207,7 +214,7 @@ function ServerGame:newClient()
 		end
 	end
 
-	local client = { id = self.nextClientId, pos = newPos, dir = "down", score = 0 }
+	local client = { id = self.nextClientId, pos = newPos, dir = "down", score = 0 , updated = true }
 	self.nextClientId = self.nextClientId + 1
 	return client
 end
