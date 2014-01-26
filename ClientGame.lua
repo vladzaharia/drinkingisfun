@@ -61,6 +61,17 @@ function ClientGame:update(dt)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 	end
+
+	-- HACK to remove the delay between movements while holding the key down
+	local isDown = love.keyboard.isDown
+	local key = isDown(Keys.Up) and Keys.Up or nil
+	key = isDown(Keys.Left) and Keys.Left or key
+	key = isDown(Keys.Down) and Keys.Down or key
+	key = isDown(Keys.Right) and Keys.Right or key
+	if not self.moving and not World:isPlayerMoving(self.id) and key ~= nil then
+		ClientGame:key(key, "re")
+	end
+	-- END HACK
 end
 
 function ClientGame:draw()
@@ -150,10 +161,11 @@ function ClientGame:key(key, action)
 		end
 	end
 
-	-- NOTE: This is for testing purposes 
+	--[[ NOTE: This is for testing purposes 
 	if key == "r" then
 		assert(false, "This is an intentional crash you get by hitting 'R'")
 	end
+	--]]
 end
 
 function ClientGame:isNextToJukeBox(pos, dir)
