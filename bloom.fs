@@ -1,11 +1,12 @@
 // adapted from http://www.youtube.com/watch?v=qNM0k522R7o
  
 extern vec2 size;
-extern int samples = 1; // pixels per axis; higher = bigger glow, worse performance
+extern int samples = 10; // pixels per axis; higher = bigger glow, worse performance
 extern float quality = 2.5; // lower = smaller glow, better quality
 extern float BAC;
 extern float cScale;
 extern float eTime;
+extern bool bloomStatus;
  
  // -- normalized axis vectors. we'll use these to
 //    get the angles
@@ -18,6 +19,7 @@ float sStrength = 1;
 
 vec4 effect(vec4 colour, Image tex, vec2 tc, vec2 sc)
 {
+
     if(BAC > 80){
         sStrength = 10;
     } else if (BAC > 50) {
@@ -59,12 +61,14 @@ vec4 effect(vec4 colour, Image tex, vec2 tc, vec2 sc)
   int diff = (samples - 1) / 2;
   vec2 sizeFactor = vec2(1) / size * quality;
   
-  for (int x = -diff; x <= diff; x++)
-  {
-    for (int y = -diff; y <= diff; y++)
+  if (bloomStatus) {
+    for (int x = -diff; x <= diff; x++)
     {
-      vec2 offset = vec2(x, y) * sizeFactor;
-      sum += Texel(tex, tc + offset);
+      for (int y = -diff; y <= diff; y++)
+      {
+        vec2 offset = vec2(x, y) * sizeFactor;
+        sum += Texel(tex, tc + offset);
+      }
     }
   }
    return (((sum / (samples * samples)) + source) * sin(cScale) * colour) + source;

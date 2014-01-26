@@ -121,6 +121,8 @@ function ClientGame:key(key, action)
 				else
 					ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
 				end
+			elseif key == "b" then
+				World:toggleBloom()
 			elseif key == Keys.Space then
 				ClientGame:updatePos(curPos, curDir,'drink')
 				World:consumeDrink(self.id)
@@ -135,6 +137,8 @@ function ClientGame:key(key, action)
 				ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
 			elseif key == Keys.Right then
 				ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
+			elseif key == "b" then
+				World:toggleBloom()
 			elseif key == Keys.Space then
 				ClientGame:updatePos(curPos, curDir,'drink')
 				World:consumeDrink(self.id)

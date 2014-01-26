@@ -41,6 +41,7 @@ function World:start(width, height)
 	self.world = Map:getWorld()
 	self.drinks = {}
 	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
+	self.bloomStatus = false
 
 	---test making drinks
 	for i=1, 4 do
@@ -176,7 +177,7 @@ function World:draw(pid)
 	bloomShader:send("BAC", World:getPlayerBAC(pid))
 	bloomShader:send("cScale", World:getPlayerBAC(pid)*0.003)
 	bloomShader:send("eTime", sTime)
-
+	bloomShader:send("bloomStatus", self.bloomStatus)
 
 	World:drawBackground()
 	love.graphics.reset()
@@ -486,6 +487,10 @@ function World:tableSize(tabl)
 		count = count + 1
 	end
 	return count
+end
+
+function World:toggleBloom()
+	self.bloomStatus = not self.bloomStatus
 end
 
 return World
