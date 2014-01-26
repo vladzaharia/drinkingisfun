@@ -1,64 +1,72 @@
 require("AnAL")
 
 local playerAnimation = {}
-local animations = {}
-local index = 1
+
+function playerAnimation:new()
+	local M = {}
+	M.init = playerAnimation.init
+	M.update = playerAnimation.update
+	M.draw = playerAnimation.draw
+	M.index = 1
+	M.animations = {}
+	return M
+end
 
 function playerAnimation:init() 
 	-- Walk Animations
 	local uWalk = love.graphics.newImage("Assets/Red/playerUWalk.png")
-	anim1 = newAnimation(uWalk, 57, 57, 0.1, 0)
+	local anim1 = newAnimation(uWalk, 57, 57, 0.1, 0)
 	anim1:setMode("loop")
 
 	local dWalk = love.graphics.newImage("Assets/Red/playerDWalk.png")
-	anim2 = newAnimation(dWalk, 57, 57, 0.1, 0)
+	local anim2 = newAnimation(dWalk, 57, 57, 0.1, 0)
 	anim2:setMode("loop")	
 
 	local lWalk = love.graphics.newImage("Assets/Red/playerLWalk.png")
-	anim3 = newAnimation(lWalk, 57, 57, 0.1, 0)
+	local anim3 = newAnimation(lWalk, 57, 57, 0.1, 0)
 	anim3:setMode("loop")
 
 	local rWalk = love.graphics.newImage("Assets/Red/playerRWalk.png")
-	anim4 = newAnimation(rWalk, 57, 57, 0.1, 0)
+	local anim4 = newAnimation(rWalk, 57, 57, 0.1, 0)
 	anim4:setMode("loop")
 
 	-- Stand Animations
 	local uStand = love.graphics.newImage("Assets/Red/playerstandup.png")
-	anim5 = newAnimation(uStand, 57,57,0.1,0)
+	local anim5 = newAnimation(uStand, 57,57,0.1,0)
 	anim5:setMode("once")
 
 	local uStand = love.graphics.newImage("Assets/Red/playerstanddown.png")
-	anim6 = newAnimation(uStand, 57,57,0.1,0)
+	local anim6 = newAnimation(uStand, 57,57,0.1,0)
 	anim6:setMode("once")
 
 	local uStand = love.graphics.newImage("Assets/Red/playerstandleft.png")
-	anim7 = newAnimation(uStand, 57,57,0.1,0)
+	local anim7 = newAnimation(uStand, 57,57,0.1,0)
 	anim7:setMode("once")
 
 	local uStand = love.graphics.newImage("Assets/Red/playerstandright.png")
-	anim8 = newAnimation(uStand, 57,57,0.1,0)
+	local anim8 = newAnimation(uStand, 57,57,0.1,0)
 	anim8:setMode("once")
 
 	-- Drink Animations
 	local rDrink = love.graphics.newImage("Assets/Red/playerDrinkRight.png")
-	anim9 = newAnimation(rDrink, 57, 57, 0.1, 0)
+	local anim9 = newAnimation(rDrink, 57, 57, 0.1, 0)
 	anim9:setMode("bounce")
 
 	local lDrink = love.graphics.newImage("Assets/Red/playerDrinkLeft.png")
-	anim10 = newAnimation(lDrink, 57, 57, 0.1, 0)
+	local anim10 = newAnimation(lDrink, 57, 57, 0.1, 0)
 	anim10:setMode("bounce")
 
 	-- Add them into the animation table
-	table.insert(animations,anim1)
-	table.insert(animations,anim2)
-	table.insert(animations,anim3)
-	table.insert(animations,anim4)
-	table.insert(animations,anim5)
-	table.insert(animations,anim6)
-	table.insert(animations,anim7)
-	table.insert(animations,anim8)
-	table.insert(animations,anim9)
-	table.insert(animations,anim10)
+	table.insert(self.animations,anim1)
+	table.insert(self.animations,anim2)
+	table.insert(self.animations,anim3)
+	table.insert(self.animations,anim4)
+	table.insert(self.animations,anim5)
+	table.insert(self.animations,anim6)
+	table.insert(self.animations,anim7)
+	table.insert(self.animations,anim8)
+	table.insert(self.animations,anim9)
+	table.insert(self.animations,anim10)
 
 end
 
@@ -67,36 +75,36 @@ end
 function playerAnimation:update(direction, action, dt)
 	if action == 'drink' then
 		if direction =='right' then
-			index = 9
+			self.index = 9
 		else
-			index = 10
+			self.index = 10
 		end
 	elseif action == 'walk' then
 		if direction == 'up' then
-			index = 1
+			self.index = 1
 		elseif direction == 'down' then
-			index = 2
+			self.index = 2
 		elseif direction == 'left' then
-			index = 3
+			self.index = 3
 		elseif direction == 'right' then
-			index = 4
+			self.index = 4
 		end
 	elseif action == 'stand' then
 		if direction == 'up' then
-			index = 5
+			self.index = 5
 		elseif direction == 'down' then
-			index = 6
+			self.index = 6
 		elseif direction == 'left' then
-			index = 7
+			self.index = 7
 		elseif direction == 'right' then
-			index = 8
+			self.index = 8
 		end
 	end 
-	animations[index]:update(dt)
+	self.animations[self.index]:update(dt)
 end
 
 function playerAnimation:draw(x,y)
-	animations[index]:draw(x,y)
+	self.animations[self.index]:draw(x,y)
 end
 
 return playerAnimation

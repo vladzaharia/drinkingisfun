@@ -12,7 +12,7 @@ function ClientGame:start(args)
 	self.moving = false
 	
 	World:start(love.window.getWidth(), love.window.getHeight())
-	World:setPlayer(args.id, args.pos, Vector(0,0))
+	World:setPlayer(args.id, args.pos, 'down')
 end
 
 function ClientGame:stop()
@@ -44,7 +44,8 @@ function ClientGame:update(dt)
 
 	-- Send client update to server
 	local pos = World:getPlayerPosition(self.id)
-	local msg = "upd " .. self.id .. " " .. pos
+	local dir = World:getPlayerDirection(self.id)
+	local msg = "upd " .. self.id .. " " .. pos .. " " .. dir
 	local result, err = self.udp:send(msg)
 	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 		(err or "none"))
@@ -63,8 +64,8 @@ function ClientGame:key(key, action)
 	
 	if action == "p" and not self.moving then
 		self.moving = true
-		curPos = World:getPlayerPosition(self.id)
-		curDir = World:getPlayerDirection(self.id)
+		local curPos = World:getPlayerPosition(self.id)
+		local curDir = World:getPlayerDirection(self.id)
 
 		if key == Keys.Up then
 			ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
@@ -98,14 +99,18 @@ end
 function ClientGame:handleMessage(data)
 	if data:match("upd ") then
 		for str in data:sub(5,-1):gmatch("[^;]+") do
-			print(str)
-			local id, pos = str:match("(%w+) (%S+,%S+)")
-			print(pos)
+			local id, pos, dir = str:match("(%w+) (%S+,%S+) (%a+)")
+			id = tonumber(id)
 			pos = Vector.fromstring(pos)
 			assert(id ~= self.id, "got update for self which is nonsense")
-			local newPos = World:setPlayer(id, pos)
+			local newPos = World:setPlayer(id, pos, dir)
 			assert(newPos == pos, "failed updated position")
 		end
+	elseif data:match("dis ") then
+		local id = data:match("dis (%w+)")
+		id = tonumber(id)
+		assert(id ~= self.id, "got message to remove self from world")
+		World:removePlayer(id)
 	else
 		assert(false, "Bad message: " .. data)
 	end

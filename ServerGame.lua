@@ -33,12 +33,12 @@ function ServerGame:update(dt)
 	
 	-- Server now needs to send out world updates to clients
 	for id, client in pairs(self.clients) do
-		local ip, port = id:match("(%S+):(%S+)")
+		local ip, port = self:getClientContact(id)
 		local msg = "upd "
 		local send = false
 		for other_id, other_client in pairs(self.clients) do 
 			if other_id ~= id then
-				msg = msg .. other_client.id .. " " .. other_client.pos .. ";"
+				msg = msg .. other_client.id .. " " .. other_client.pos .. " " .. other_client.dir .. ";"
 				send = true
 			end
 		end
@@ -56,7 +56,7 @@ function ServerGame:draw()
 	love.graphics.print("Client list:", 10, 30)
 	local y = 50
 	for id,client in pairs(self.clients) do
-		love.graphics.print(id, 10, y)
+		love.graphics.print(id .. " - Position (" .. client.pos .. ")", 10, y)
 		y = y + 20
 	end
 
@@ -90,15 +90,23 @@ function ServerGame:handleMessage(ip, port, data)
 		print("Disconnected ip=" .. ip .. " port=" .. port)
 		local id = self:getClientId(ip, port)
 		assert(self.clients[id], "Not a valid client: " .. id)
-		-- TODO: The actual logic for this will require removing the player from
-		-- the world and notifying other clients of this
+		local client = self.clients[id]
+		-- Clear it out of the server's table
 		self.clients[ id ] = nil
+		-- Notify other clients of the removal of a player
+		for other_id, _ in pairs(self.clients) do
+			local nip, nport = self:getClientContact(other_id)
+			local result, err = self.udp:sendto("dis " .. client.id, nip, nport)
+			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+				(err or "none"))
+		end
 	elseif data:match("upd ") then
 		local id = self:getClientId(ip, port)
 		local client = self.clients[id]
-		local id,vec = data:match("upd (%w*) (%S*,%S*)")
+		local id,vec,dir = data:match("upd (%w+) (%S+,%S+) (%a*)")
 		assert(tonumber(id) == client.id, "Bad client id for this client")
 		client.pos = Vector.fromstring(vec)
+		client.dir = dir
 	else
 		assert(false, "Bad message: " .. data)
 	end
@@ -108,8 +116,12 @@ function ServerGame:getClientId(ip, port)
 	return ip .. (":" .. port)
 end
 
+function ServerGame:getClientContact(id)
+	return id:match("(%S+):(%S+)")
+end
+
 function ServerGame:newClient() 
-	local client = { id = self.nextClientId, pos = Vector(self.nextClientId+2,2) }
+	local client = { id = self.nextClientId, pos = Vector(self.nextClientId+2,2), dir = "down" }
 	self.nextClientId = self.nextClientId + 1
 	return client
 end
