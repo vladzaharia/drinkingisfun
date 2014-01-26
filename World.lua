@@ -417,7 +417,11 @@ end
 function World:checkIfDrowned(id)
 	local pos = self.players[id].pos
 	if self.world[pos.y][pos.x] == "P" and self.players[id].bac > BAC_THRESHOLD[2] then
-		self.players[id].aboutToDie = true
+		if self.players[id].moveTime then
+			self.players[id].aboutToDie = true
+		else
+			self.players[id].loser = true
+		end
 		self.players[id].loserType = 'pool'
 	end
 end
