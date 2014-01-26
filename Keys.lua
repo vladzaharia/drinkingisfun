@@ -8,7 +8,8 @@ local Keys =
 	Left		= "left",
 	Right		= "right",
 	Down		= "down",
-	Up			= "up"
+	Up			= "up",
+	C			= "c"
 }
 
 function Keys.tostring(key)

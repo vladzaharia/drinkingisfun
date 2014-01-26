@@ -121,8 +121,36 @@ function ServerGame:handleMessage(ip, port, data)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
 	elseif data:match("hrt") then
 		-- This is just the heartbeat for the client connection, do nothing
+	elseif data:match("iceReq ") then
+		local client = self.clients[desc]
+		local id, tid, vec, bac = data:match("iceReq (%w+) (%w+) (%S+,%S+) (%d+)")
+		vec = Vector.fromstring(vec)
+		for cid, client in pairs(self.clients) do
+			if Vector.eq(client.pos , vec) then
+				self:sendIceNote(cid, bac)
+				self:sendIceRes(ip, port)
+			end
+		end
 	else
 		assert(false, "Bad message: " .. data)
+	end
+end
+
+function ServerGame:sendIceRes(ip, port)
+	local result, err = self.udp:sendto("iceRes", ip, port)
+	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
+end
+
+function ServerGame:sendIceNote(tid, bac)
+	local msg = "iceNote " .. bac
+	print(msg)
+	for cid, client in pairs(self.clients) do
+		if cid == tid then
+			print("iceNote sent")
+			local ip,port = self:getClientContact( cid )
+			local result, err = self.udp:sendto(msg, ip, port)
+			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
+		end
 	end
 end
 

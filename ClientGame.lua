@@ -12,6 +12,7 @@ function ClientGame:start(args)
 	self.udp = args.udp
 	self.moving = false
 	self.timeSinceLastHeartbeat = 0
+	_G["udpSocket"] = self.udp
 	
 	World:start(love.window.getWidth(), love.window.getHeight())
 	World:setPlayer(args.id, args.pos, 'down')
@@ -141,6 +142,8 @@ function ClientGame:key(key, action)
 			elseif key == Keys.Space then
 				ClientGame:updatePos(curPos, curDir,'drink')
 				World:consumeDrink(self.id)
+			elseif key == "c" then
+				World:attemptIce(self.id)
 			end
 		-- normal walking
 		else	
@@ -154,6 +157,8 @@ function ClientGame:key(key, action)
 				ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
 			elseif key == "b" then
 				World:toggleBloom()
+			elseif key == "c" then
+				World:attemptIce(self.id)
 			elseif key == Keys.Space then
 				if ClientGame:isNextToJukeBox(curPos, curDir) then 
 					World:handleJukeBox()
@@ -240,10 +245,14 @@ function ClientGame:handleMessage(data)
 		pos = Vector.fromstring(pos)
 		World:setPlayer(self.id, pos, dir, "move")
 		self.moving = false
+	elseif data:match("iceNote ") then
+		local bac = data:match("iceNote (%S+)")
+		World:addToPlayerBAC(self.id, bac)
+	elseif data:match("iceRes") then
+		World:playerDropItem(self.id)
 	else
 		assert(false, "Bad message: " .. data)
 	end
 end
-
 
 return ClientGame
