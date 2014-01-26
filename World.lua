@@ -2,6 +2,7 @@
 local World = {}
 local Map = require("Map")
 local playerAnimation = require("playerAnimation")
+local Assets = require("Assets")
 
 -- Size of players
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
@@ -10,21 +11,10 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
 local DRINK_CONTENT = {6, 6, 20, 15, 15, 10}
 local DRINK_TYPE_SIZE = 6
-local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
-						 'Assets/drinks/beerGreen.png',
-						 'Assets/drinks/ice.png',
-						 'Assets/drinks/shotJello.png',
-						 'Assets/drinks/shotTequila.png',
-						 'Assets/drinks/wine.png'}
 
 -- BAC thresholds
 local BAC_THRESHOLD = {30, 70}
 local BAC_DECAY_RATE = {0.05, 0.07, 0.12}
-
--- Types of profiles
-local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
-							'Assets/Profile/portraitTipsy.png',
-							'Assets/Profile/portraitDrunk.png'}
 
 -- status colours
 local BACKGROUND_GREEN = {154,205,50,255}
@@ -127,14 +117,12 @@ function World:drawDrinks()
 	love.graphics.reset()
 	for id, drink in pairs(self.drinks) do
 		World:drawDrink(drink.type, drink.pos, offsetPos)
-		--local pos = drink.pos
-		--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
-		--love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 	end
 end
 
 function World:drawDrink(type, pos, offset)
-	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+	--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+	local drinkImage = Assets:getDrinkImage(type)
 	love.graphics.draw(drinkImage, (pos.x+offset.x)*GRID_SIZE-GRID_SIZE, (pos.y+offset.y)*GRID_SIZE-GRID_SIZE)
 end
 
@@ -160,13 +148,13 @@ function World:drawHUD(pid)
 
 	-- profile place holder
 	love.graphics.reset()
-	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
+	local profileImage = Assets:getProfileImage(1)
 	local playerBAC = World:getPlayerBAC(pid)
 	if playerBAC > BAC_THRESHOLD[1] then 
 		if playerBAC < BAC_THRESHOLD[2] then
-			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[2])
+			profileImage = Assets:getProfileImage(2)
 		else 
-			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[3])
+			profileImage = Assets:getProfileImage(3)
 		end
 	end
 
@@ -176,15 +164,11 @@ function World:drawHUD(pid)
 	local leftHand = self.players[pid].leftHand
 	local rightHand = self.players[pid].rightHand
 
-	if leftHand > 0 then
-		local leftInvImage = love.graphics.newImage(DRINK_FILE_NAME[leftHand])
-		love.graphics.draw(leftInvImage, 100, self.height - 88)
-	end
+	local leftInvImage = Assets:getLeftHandImage(leftHand+1)
+	love.graphics.draw(leftInvImage, 100, self.height - 90)
 
-	if rightHand > 0 then
-		local rightInvImage = love.graphics.newImage(DRINK_FILE_NAME[rightHand])
-		love.graphics.draw(rightInvImage, 155, self.height - 88)
-	end
+	local rightInvImage = Assets:getRightHandImage(rightHand+1)
+	love.graphics.draw(rightInvImage, 155, self.height - 90)
 
 	-- Drunk-o-meter
 	love.graphics.setColor(0,0,0,255)
@@ -273,7 +257,8 @@ end
 
 function World:drawInventory(dtype, x, y)
 	if not dtype == 0 then
-		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+		--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+		local drinkImage = Assets.getDrinkImage(type)
 		love.graphics.draw(drinkImage, x, y)
 	end
 end
