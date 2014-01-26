@@ -4,12 +4,15 @@ local Map = require("Map")
 local playerAnimation = require("playerAnimation")
 local Assets = require("Assets")
 local SoundManager = require("SoundManager")
+local jukeboxAnimation = require("jukeboxAnimation")
+local jAnimation = jukeboxAnimation:new()
 local sManager = SoundManager:new()
 
 -- Size of players
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
+-- Duplicated in ServerGame
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
 local DRINK_CONTENT = {8, 8, 22, 16, 16, 12}
 local DRINK_TYPE_SIZE = 6
@@ -32,6 +35,9 @@ local bloomShader = love.graphics.newShader("bloom.fs")
 -- timer
 local sTime = 0
 
+-- Check if song was just changed
+local song_changed = 1
+
 function World:start(width, height)
 	self.width = width;
 	self.height = height
@@ -43,14 +49,10 @@ function World:start(width, height)
 	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 	self.bloomStatus = false
 
-	---test making drinks
-	for i=1, 4 do
-		World:spawnDrink()
-	end
-
 	--start the music
 	sManager:init()
 	sManager:startMusic()
+	jAnimation:init()
 end
 
 function World:stop()
@@ -68,6 +70,8 @@ function World:update(dt)
 	if not self.players then
 		return
 	end
+
+	jAnimation:update(dt)
 
 	for id, player in pairs(self.players) do
 		World:pickUp(id, self.players[id].pos)
@@ -92,7 +96,7 @@ function World:update(dt)
 			end
 		end
 
-		if player.action == 'move' then
+		if player.action == 'move' and not player.loser then
 			-- Play footsteps
 			sManager:walk()
 			if not player.moveTime then
@@ -106,13 +110,12 @@ function World:update(dt)
 		end
 	end
 
-	--spawn drink
-	local drink_count = World:tableSize(self.drinks)
-	if drink_count < 15 then
-		World:spawnDrink()
-	end
-
 	sTime = sTime + love.timer.getAverageDelta()
+
+	--check song stuff
+	if song_changed > 0 then
+		song_changed = song_changed - 0.005
+	end
 end
 
 
@@ -123,6 +126,7 @@ function World:decayBAC(id)
 	--please enjoy responsibly
 	if pbac > 100 then
 		self.players[id].loser = true
+		self.players[id].loserType = 'wasted'
 		return
 	end
 
@@ -138,7 +142,8 @@ function World:decayBAC(id)
 
 	if (pbac - penalty) < 0 then
 		self.players[id].bac = 0
-		--self.players[id].loser = true
+		self.players[id].loser = true
+		self.players[id].loserType = 'sober'
 	else
 		self.players[id].bac = pbac - penalty
 	end
@@ -170,8 +175,8 @@ end
 
 
 function World:draw(pid)
-	if self.players[pid].loser == true then
-		World:drawGameOver()
+	if self.players[pid].loser == true and not self.players[pid].moveTime then
+		World:drawGameOver(self.players[pid].loserType)
 
 		return
 	end
@@ -192,8 +197,11 @@ function World:draw(pid)
 	love.graphics.reset()
 	World:drawPlayers()
 	love.graphics.reset()
+	World:drawJukebox()
+	love.graphics.reset()
 	World:drawHUD(pid)
 	love.graphics.reset()
+
 end
 
 function World:calculateOffset(pid)
@@ -241,8 +249,8 @@ function World:drawDrink(type, pos, offset)
 	love.graphics.draw(drinkImage, pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 end
 
-function World:drawGameOver()
-	love.graphics.draw(Assets:getGameOverImage())
+function World:drawGameOver(type)
+	love.graphics.draw(Assets:getGameOverImage(type))
 	sManager:stopMusic()
 	sManager:startGameOverMusic()
 end
@@ -262,7 +270,6 @@ function World:drawPlayers()
 
 		if finalPos then
 			--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
-			love.graphics.reset()
 			self.players[id].pAnim:draw(finalPos.x, finalPos.y)
 		end
 	end	
@@ -270,6 +277,18 @@ end
 
 function World:handleJukeBox()
 	sManager:playNext()
+	song_changed = 1
+	return sManager:getSong()
+end
+
+function World:switchSong(id)
+	sManager:playSong(id)
+	song_changed = 1
+end
+
+function World:drawJukebox()
+	jukeboxPos = Vector(14*GRID_SIZE+offsetPos.x-GRID_SIZE,14*GRID_SIZE+offsetPos.y-GRID_SIZE)
+	jAnimation:draw(jukeboxPos.x,jukeboxPos.y)
 end
 
 function World:drawHUD(pid)
@@ -331,6 +350,16 @@ function World:drawHUD(pid)
 		love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100, (92/2)-8)
 	end
 
+	-- Song Changed
+	if song_changed > 0 then
+		love.graphics.setColor(255,255,255,255)
+		love.graphics.rectangle("fill", 460, 20, 320, 30)
+		local music = love.graphics.newImage("Assets/Music.png")
+		love.graphics.draw(music, 465, 25)
+		love.graphics.setColor(0,0,0,255)
+		love.graphics.print("Currently Playing: " .. sManager:getSongName(), 495, 30)
+	end
+
 end
 
 function World:setPlayer(id, pos, dir, action)
@@ -345,7 +374,7 @@ function World:setPlayer(id, pos, dir, action)
 	World:addScore(id)
 
 	if not self.players[id].pAnim then
-		self.players[id].pAnim = playerAnimation:new()
+		self.players[id].pAnim = playerAnimation:new(playerAnimation:getColor(id))
 		self.players[id].pAnim:init()
 	end
 
@@ -371,6 +400,7 @@ function World:checkIfDrowned(id)
 	local pos = self.players[id].pos
 	if self.world[pos.y][pos.x] == "P" and self.players[id].bac > BAC_THRESHOLD[2] then
 		self.players[id].loser = true
+		self.players[id].loserType = 'pool'
 	end
 end
 
@@ -436,6 +466,10 @@ function World:drawInventory(dtype, x, y)
 	end
 end
 
+function World:addDrink(drink_type, pos)
+	table.insert(self.drinks, {type = drink_type, pos = pos})
+end
+
 function World:consumeDrink(pid)
 	local player = self.players[pid]
 	if player.rightHand > 0 then
@@ -449,28 +483,6 @@ function World:consumeDrink(pid)
 		player.leftHand = 0
 		sManager:drink()
 	end
-end
-
-function World:spawnDrink()
-	local freeSpace = false
-	local newPos = World:randomPos()
-
-	while not freeSpace do
-		local randPos = self.world[newPos.y][newPos.x]
-		if randPos == 'W' or randPos == 'P' or World:collideItem(newPos) then
-			newPos = World:randomPos()
-		else
-			freeSpace = true
-		end
-	end
-
-	local drinkType = DRINK_TYPE[math.random(1, DRINK_TYPE_SIZE)]
-	
-	local d = {}
-	d.pos = newPos
-	d.type = drinkType
-
-	table.insert(self.drinks, d)
 end
 
 function World:randomPos()
@@ -506,6 +518,7 @@ function World:pickUp(pid, ppos)
 		end
 	end
 end
+
 
 function World:playerDropItem(pid)
 	local player = self.players[pid]

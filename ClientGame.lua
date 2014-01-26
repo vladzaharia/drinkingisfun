@@ -7,6 +7,7 @@ local World 			= require("World")
 
 local HEARTBEAT_DELAY = 1
 
+
 function ClientGame:start(args)
 	self.id = args.id
 	self.udp = args.udp
@@ -139,11 +140,17 @@ function ClientGame:key(key, action)
 				end
 			elseif key == "b" then
 				World:toggleBloom()
-			elseif key == Keys.Space then
-				ClientGame:updatePos(curPos, curDir,'drink')
-				World:consumeDrink(self.id)
 			elseif key == "c" then
 				World:attemptIce(self.id)
+			elseif key == Keys.Space then
+				if ClientGame:isNextToJukeBox(curPos, curDir) then 
+					local newSong = World:handleJukeBox()
+					self:updateSong(newSong)
+				else 
+					ClientGame:updatePos(curPos, curDir,'drink')
+					World:consumeDrink(self.id)
+				end
+
 			end
 		-- normal walking
 		else	
@@ -161,7 +168,8 @@ function ClientGame:key(key, action)
 				World:attemptIce(self.id)
 			elseif key == Keys.Space then
 				if ClientGame:isNextToJukeBox(curPos, curDir) then 
-					World:handleJukeBox()
+					local newSong = World:handleJukeBox()
+					self:updateSong(newSong)
 				else 
 					ClientGame:updatePos(curPos, curDir,'drink')
 					World:consumeDrink(self.id)
@@ -207,6 +215,14 @@ function ClientGame:updatePos(newPos, dir, action)
 	end
 end
 
+function ClientGame:updateSong(song)
+	-- request the move from the server
+	local msg = "juke " .. self.id .. " " .. song
+	local result, err = self.udp:send(msg)
+	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+		(err or "none"))
+end
+
 function ClientGame:mousePos(x,y)
 end
 
@@ -232,6 +248,9 @@ function ClientGame:handleMessage(data)
 				
 			--assert(newPos == pos, "failed updated position")
 		end
+	elseif data:match("juke ") then
+		local song = data:match("juke (%d)")
+		World:switchSong(song)
 	elseif data:match("dis ") then
 		-- remove a player from the game
 		local id = data:match("dis (%w+)")
@@ -245,11 +264,20 @@ function ClientGame:handleMessage(data)
 		pos = Vector.fromstring(pos)
 		World:setPlayer(self.id, pos, dir, "move")
 		self.moving = false
+
 	elseif data:match("iceNote ") then
 		local bac = data:match("iceNote (%S+)")
 		World:addToPlayerBAC(self.id, bac)
 	elseif data:match("iceRes") then
 		World:playerDropItem(self.id)
+
+	elseif data:match("drk ") then
+		-- Server has spawned a new drink, add it to our world
+		local drk_type, pos = data:match("drk (%w+) (%S+,%S+)")
+		drk_type = tonumber(drk_type)
+		pos = Vector.fromstring(pos)
+		World:addDrink(drk_type, pos)
+
 	else
 		assert(false, "Bad message: " .. data)
 	end
