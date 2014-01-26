@@ -3,6 +3,8 @@ local World = {}
 local Map = require("Map")
 local playerAnimation = require("playerAnimation")
 local Assets = require("Assets")
+local SoundManager = require("SoundManager")
+local sManager = SoundManager:new()
 
 -- Size of players
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
@@ -34,6 +36,9 @@ function World:start(width, height)
 	for i=1, 3 do
 		World:spawnDrink()
 	end
+
+	--start the music
+	sManager:startMusic()
 end
 
 function World:stop()
@@ -66,6 +71,8 @@ function World:update(dt)
 		end
 
 		if player.action == 'move' then
+			-- Play footsteps
+			sManager:walk()
 			if not player.moveTime then
 				player.moveTime = 0
 			elseif player.moveTime >= 1 then
@@ -320,10 +327,14 @@ function World:consumeDrink(pid)
 		--do something with bar
 		player.bac = player.bac + DRINK_CONTENT[player.rightHand]
 		player.rightHand = 0
+		sManager:drink()
+		--sManager.swallow.play()
 	elseif player.leftHand > 0 then
 		--do something with bar
 		player.bac = player.bac + DRINK_CONTENT[player.leftHand]
 		player.leftHand = 0
+		sManager:drink()
+		--sManager.swallow.play()
 	end
 end
 
