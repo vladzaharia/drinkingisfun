@@ -96,7 +96,7 @@ function World:update(dt)
 			end
 		end
 
-		if player.action == 'move' then
+		if player.action == 'move' and not player.loser then
 			-- Play footsteps
 			sManager:walk()
 			if not player.moveTime then
@@ -104,6 +104,9 @@ function World:update(dt)
 			elseif player.moveTime >= 1 then
 				player.action = 'stand'
 				player.moveTime = nil
+				if player.aboutToDie then
+					player.loser = true
+				end
 			else
 				player.moveTime = player.moveTime + 0.06
 			end
@@ -399,7 +402,7 @@ end
 function World:checkIfDrowned(id)
 	local pos = self.players[id].pos
 	if self.world[pos.y][pos.x] == "P" and self.players[id].bac > BAC_THRESHOLD[2] then
-		self.players[id].loser = true
+		self.players[id].aboutToDie = true
 		self.players[id].loserType = 'pool'
 	end
 end
