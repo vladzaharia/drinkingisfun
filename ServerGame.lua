@@ -3,7 +3,7 @@ local ServerGame = {}
 
 local socket 			= require("socket")
 local DisconnectManager	= require("DisconnectManager")
-
+local Map 				= require("Map")
 
 function ServerGame:start()
 	-- Set up our socket
@@ -132,9 +132,60 @@ function ServerGame:getClientContact(desc)
 end
 
 function ServerGame:newClient() 
-	local client = { id = self.nextClientId, pos = Vector(self.nextClientId+2,2), dir = "down" }
+	local freeSpace = false
+	local newPos = ServerGame:randomPos()
+
+	while not freeSpace do
+		if not ServerGame:isPossibleMove(newPos) then
+			newPos = ServerGame:randomPos()
+		else
+			freeSpace = true
+		end
+	end
+
+	local client = { id = self.nextClientId, pos = newPos, dir = "down" }
 	self.nextClientId = self.nextClientId + 1
 	return client
+end
+
+function ServerGame:randomPos()
+	local newX = math.random(1, ServerGame:tableSize(Map:getWorld()[1])-1)
+	local newY = math.random(1, ServerGame:tableSize(Map:getWorld())-1)
+	return Vector(newX, newY)
+end
+
+function ServerGame:isPossibleMove(pos)
+	can_move = true
+
+	for _, client in pairs(self.clients) do
+		if pos == client.pos then
+			can_move = false
+			break
+		end
+	end
+
+	for y, row in pairs(Map:getWorld()) do
+		for x, item in pairs(row) do
+			if item then
+				if item == "W" then
+					if pos == Vector(x,y) then
+						can_move = false
+						break
+					end
+				end
+			end
+		end
+	end
+
+	return can_move
+end
+
+function ServerGame:tableSize(tabl)
+	local count = 0
+	for _ in pairs(tabl) do
+		count = count + 1
+	end
+	return count
 end
 
 function ServerGame:removePlayer(desc)
