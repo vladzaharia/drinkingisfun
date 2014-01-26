@@ -175,6 +175,7 @@ function World:drawPlayers()
 		finalPos = Vector(pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 
 		if player.action == 'move' then
+			print(player.pos, player.oldPos)
 			local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * player.moveTime, GRID_SIZE * player.moveTime)
 			finalPos = Vector(player.oldPos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, player.oldPos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 			finalPos = finalPos + posDiff
@@ -259,7 +260,7 @@ function World:setPlayer(id, pos, dir, action)
 	self.players[id].action = action or 'stand'
 
 	if action == 'move' then
-		self.players[id].oldPos = self.players[id].pos
+		self.players[id].oldPos = self.players[id].pos or pos
 	end
 
 	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
@@ -298,7 +299,9 @@ function World:removePlayer(id)
 end
 
 function World:getPlayerPosition(id)
-	return self.players[id].pos
+	if self.players[id] then
+		return self.players[id].pos or Vector(0,0)
+	end
 end
 
 function World:getPlayerDirection(id)

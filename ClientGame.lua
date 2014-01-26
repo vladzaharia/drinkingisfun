@@ -129,7 +129,11 @@ function ClientGame:handleMessage(data)
 			id = tonumber(id)
 			pos = Vector.fromstring(pos)
 			assert(id ~= self.id, "got update for self which is nonsense")
-			local newPos = World:setPlayer(id, pos, dir, "move")
+			local oldPos = World:getPlayerPosition(id)
+			if oldPos ~= pos then
+				newPos = World:setPlayer(id, pos, dir, "move")
+			end
+				
 			assert(newPos == pos, "failed updated position")
 		end
 	elseif data:match("dis ") then
