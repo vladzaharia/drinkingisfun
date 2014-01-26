@@ -54,10 +54,6 @@ end
 function ClientGame:draw()
 	World:draw(World:getPlayerPosition(self.id), self.id)
 
-	love.graphics.setColor(255,255,255,255)
-	love.graphics.print("Client: " .. socket.dns.toip(socket.dns.gethostname()),
-		400, 580)
-	love.graphics.print("Player" .. self.id .. " P" .. Vector.tostring(World:getPlayerPosition(self.id)), 100, 580)
 end
 
 function ClientGame:key(key, action)
