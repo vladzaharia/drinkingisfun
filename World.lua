@@ -82,7 +82,7 @@ function World:update(dt)
 				player.action = 'stand'
 				player.moveTime = nil
 			else
-				player.moveTime = player.moveTime + 0.04
+				player.moveTime = player.moveTime + 0.06
 			end
 		end
 	end
@@ -112,10 +112,10 @@ function World:calculateOffset(pid)
 	local centerPos = Vector(xCenter, yCenter)
 	offsetPos = (centerPos - playerPos) * Vector(GRID_SIZE, GRID_SIZE)
 
-	-- if player.action == "move" then
-	-- 	local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * player.moveTime, GRID_SIZE * player.moveTime)
-	-- 	offsetPos = offsetPos + posDiff
-	-- end
+	if player.action == "move" then
+		local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * (1-player.moveTime), GRID_SIZE * (1-player.moveTime))
+		offsetPos = offsetPos + posDiff
+	end
 end
 
 function World:drawBackground()
