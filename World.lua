@@ -62,7 +62,7 @@ function World:draw(playerPos, pid)
 	local yCenter = math.floor(self.height / (GRID_SIZE * 2))
 	local xCenter = math.floor(self.width / (GRID_SIZE * 2))
 	local centerPos = Vector(xCenter, yCenter)
-	local offsetPos = centerPos - playerPos
+	offsetPos = centerPos - playerPos
 	
 	-- Draw the world
 	for y, row in pairs(self.world) do
