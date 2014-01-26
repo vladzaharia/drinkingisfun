@@ -8,7 +8,7 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
-local DRINK_CONTENT = {5, 5, 20, 15, 15, 10}
+local DRINK_CONTENT = {7, 7, 21, 14, 14, 10}
 local DRINK_TYPE_SIZE = 6
 local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/beerGreen.png',
@@ -57,7 +57,7 @@ function World:update(dt)
 		p.pAnim:update(p.dir, p.action, dt)
 
 
-		player.bac = player.bac - 0.1
+		player.bac = player.bac - 0.07
 		if player.bac < 0 then 
 			player.bac = 0 
 		end
