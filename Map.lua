@@ -14,9 +14,9 @@ local Map = {}
 
 local World1 = {{"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"},
                 {"W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
-                {"W", nil, nil, "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
-                {"W", nil, nil, nil, nil, nil, nil, "W", "W", "W", nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
-                {"W", nil, nil, nil, nil, nil, nil, "W", "W", "W", nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
+                {"W", nil, nil, "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", "P", "P", "P", "P", "P", nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, "W", "W", "W", nil, nil, "W", nil, nil, "P", "P", "P", "P", "P", "P", nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, "W", "W", "W", nil, nil, "W", nil, nil, "P", "P", "P", "P", "P", "P", nil, nil, "W"},
                 {"W", nil, nil, "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, "W", "W", "W", "W", "W", "W", "W", nil, nil, "W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, "W"},

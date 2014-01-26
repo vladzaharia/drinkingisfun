@@ -167,17 +167,8 @@ function ServerGame:isPossibleMove(pos)
 		end
 	end
 
-	for y, row in pairs(Map:getWorld()) do
-		for x, item in pairs(row) do
-			if item then
-				if item == "W" then
-					if pos == Vector(x,y) then
-						can_move = false
-						break
-					end
-				end
-			end
-		end
+	if Map:getWorld()[pos.y][pos.x] == "W" then
+		can_move = false
 	end
 
 	return can_move

@@ -31,6 +31,9 @@ function ClientGame:stop()
 end
 
 function ClientGame:update(dt)
+	-- Check whether we just drowned
+	World:checkIfDrowned(self.id)
+
 	-- Receive client updates
 	local data, msg = self.udp:receive()
 	while data ~= nil do
