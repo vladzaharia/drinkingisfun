@@ -410,8 +410,7 @@ end
 
 function World:drawInventory(dtype, x, y)
 	if not dtype == 0 then
-		--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
-		local drinkImage = Assets.getDrinkImage(type)
+		local drinkImage = Assets:getDrinkImage(type)
 		love.graphics.draw(drinkImage, x, y)
 	end
 end

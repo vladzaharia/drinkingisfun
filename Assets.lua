@@ -30,24 +30,57 @@ local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
 
 local GAME_OVER_SCREEN = 'Assets/Screens/GameOver.png'
 
+Assets.gameOverImage = love.graphics.newImage(GAME_OVER_SCREEN)
+Assets.leftHandImage = {
+	love.graphics.newImage(LEFT_HAND_FILE_NAME[1]),
+	love.graphics.newImage(LEFT_HAND_FILE_NAME[2]),
+	love.graphics.newImage(LEFT_HAND_FILE_NAME[3]),
+	love.graphics.newImage(LEFT_HAND_FILE_NAME[4]),
+	love.graphics.newImage(LEFT_HAND_FILE_NAME[5]),
+	love.graphics.newImage(LEFT_HAND_FILE_NAME[6]),
+	love.graphics.newImage(LEFT_HAND_FILE_NAME[7]),
+}
+Assets.rightHandImage = {
+	love.graphics.newImage(RIGHT_HAND_FILE_NAME[1]),
+	love.graphics.newImage(RIGHT_HAND_FILE_NAME[2]),
+	love.graphics.newImage(RIGHT_HAND_FILE_NAME[3]),
+	love.graphics.newImage(RIGHT_HAND_FILE_NAME[4]),
+	love.graphics.newImage(RIGHT_HAND_FILE_NAME[5]),
+	love.graphics.newImage(RIGHT_HAND_FILE_NAME[6]),
+	love.graphics.newImage(RIGHT_HAND_FILE_NAME[7]),
+}
+Assets.drinkImage = {
+	love.graphics.newImage(DRINK_FILE_NAME[1]),
+	love.graphics.newImage(DRINK_FILE_NAME[2]),
+	love.graphics.newImage(DRINK_FILE_NAME[3]),
+	love.graphics.newImage(DRINK_FILE_NAME[4]),
+	love.graphics.newImage(DRINK_FILE_NAME[5]),
+	love.graphics.newImage(DRINK_FILE_NAME[6]),
+}
+Assets.profileImage = {
+	love.graphics.newImage(PROFILE_FILE_NAME[1]),
+	love.graphics.newImage(PROFILE_FILE_NAME[2]),
+	love.graphics.newImage(PROFILE_FILE_NAME[3]),
+}
+
 function Assets:getGameOverImage()
-	return love.graphics.newImage(GAME_OVER_SCREEN)
+	return self.gameOverImage
 end
 
 function Assets:getLeftHandImage(index)
-	return love.graphics.newImage(LEFT_HAND_FILE_NAME[index])
+	return self.leftHandImage[index]
 end
 
 function Assets:getRightHandImage(index)
-	return love.graphics.newImage(RIGHT_HAND_FILE_NAME[index])
+	return self.rightHandImage[index]
 end
 
 function Assets:getDrinkImage(index)
-	return love.graphics.newImage(DRINK_FILE_NAME[index])
+	return self.drinkImage[index]
 end
 
 function Assets:getProfileImage(index)
-	return love.graphics.newImage(PROFILE_FILE_NAME[index])
+	return self.profileImage[index]
 end
 
 return Assets
