@@ -12,6 +12,7 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
 local DRINK_CONTENT = {6, 6, 20, 15, 15, 10}
+local DRINK_CONTENT = {8, 8, 22, 16, 16, 12}
 local DRINK_TYPE_SIZE = 6
 
 -- BAC thresholds

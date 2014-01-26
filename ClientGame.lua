@@ -51,7 +51,8 @@ function ClientGame:update(dt)
 	if not self.moving then
 		local pos = World:getPlayerPosition(self.id)
 		local dir = World:getPlayerDirection(self.id)
-		local msg = "upd " .. self.id .. " " .. pos .. " " .. dir
+		local scr = World:getPlayerScore(self.id)
+		local msg = "upd " .. self.id .. " " .. pos .. " " .. dir .. " " .. scr
 		local result, err = self.udp:send(msg)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
@@ -138,8 +139,13 @@ function ClientGame:key(key, action)
 			elseif key == "b" then
 				World:toggleBloom()
 			elseif key == Keys.Space then
-				ClientGame:updatePos(curPos, curDir,'drink')
-				World:consumeDrink(self.id)
+				if ClientGame:isNextToJukeBox(curPos, curDir) then 
+					local newSong = World:handleJukeBox()
+					self:updateSong(newSong)
+				else 
+					ClientGame:updatePos(curPos, curDir,'drink')
+					World:consumeDrink(self.id)
+				end
 			end
 		-- normal walking
 		else	
@@ -155,7 +161,8 @@ function ClientGame:key(key, action)
 				World:toggleBloom()
 			elseif key == Keys.Space then
 				if ClientGame:isNextToJukeBox(curPos, curDir) then 
-					World:handleJukeBox()
+					local newSong = World:handleJukeBox()
+					self:updateSong(newSong)
 				else 
 					ClientGame:updatePos(curPos, curDir,'drink')
 					World:consumeDrink(self.id)
@@ -167,6 +174,11 @@ function ClientGame:key(key, action)
 	--[[ NOTE: This is for testing purposes 
 	if key == "r" then
 		assert(false, "This is an intentional crash you get by hitting 'R'")
+	end
+	--]]
+	---[[ NOTE: This is also for testing
+	if key == "p" and action == "p" then
+		World:addToPlayerBAC(self.id, 10)
 	end
 	--]]
 end
@@ -196,6 +208,14 @@ function ClientGame:updatePos(newPos, dir, action)
 	end
 end
 
+function ClientGame:updateSong(song)
+	-- request the move from the server
+	local msg = "juke " .. self.id .. " " .. song
+	local result, err = self.udp:send(msg)
+	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+		(err or "none"))
+end
+
 function ClientGame:mousePos(x,y)
 end
 
@@ -208,17 +228,22 @@ function ClientGame:handleMessage(data)
 		-- move all the other players
 		-- we'll need to smooth them out and make them "walk"
 		for str in data:sub(5,-1):gmatch("[^;]+") do
-			local id, pos, dir = str:match("(%w+) (%S+,%S+) (%a+)")
+			local id, pos, dir, scr = str:match("(%w+) (%S+,%S+) (%a+) (%S+)")
 			id = tonumber(id)
+			scr = tonumber(scr)
 			pos = Vector.fromstring(pos)
 			assert(id ~= self.id, "got update for self which is nonsense")
 			local oldPos = World:getPlayerPosition(id)
 			if oldPos ~= pos then
 				newPos = World:setPlayer(id, pos, dir, "move")
 			end
+			World:setPlayerScore(id, scr)
 				
 			--assert(newPos == pos, "failed updated position")
 		end
+	elseif data:match("juke ") then
+		local song = data:match("juke (%d)")
+		World:switchSong(song)
 	elseif data:match("dis ") then
 		-- remove a player from the game
 		local id = data:match("dis (%w+)")

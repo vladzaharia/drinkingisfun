@@ -39,7 +39,7 @@ function ServerGame:update(dt)
 		local send = false
 		for other_desc, other_client in pairs(self.clients) do 
 			if other_desc ~= desc then
-				msg = msg .. other_client.id .. " " .. other_client.pos .. " " .. other_client.dir .. ";"
+				msg = msg .. other_client.id .. " " .. other_client.pos .. " " .. other_client.dir .. " " .. other_client.score .. ";"
 				send = true
 			end
 		end
@@ -103,10 +103,11 @@ function ServerGame:handleMessage(ip, port, data)
 		self:removePlayer(desc)
 	elseif data:match("upd ") then
 		local client = self.clients[desc]
-		local id,vec,dir = data:match("upd (%w+) (%S+,%S+) (%a*)")
+		local id,vec,dir,scr = data:match("upd (%w+) (%S+,%S+) (%a*) (%S+)")
 		assert(tonumber(id) == client.id, "Bad client id for this client")
 		client.pos = Vector.fromstring(vec)
 		client.dir = dir
+		client.score = scr
 	elseif data:match("req ") then
 		local client = self.clients[desc]
 		local id,vec,dir = data:match("req (%w+) (%S+,%S+) (%a*)")
@@ -118,6 +119,19 @@ function ServerGame:handleMessage(ip, port, data)
 		client.dir = dir
 		local result, err = self.udp:sendto("acc " .. client.pos .. " " .. client.dir, ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
+	elseif data:match("juke ") then
+		local client = self.clients[desc]
+		local id,song = data:match("juke (%w+) (%d)")
+		assert(tonumber(id) == client.id, "Bad client id for this client")
+
+		-- Send update to all other clients
+		for other_desc, other_client in pairs(self.clients) do 
+			if desc ~= other_desc then
+				local ip, port = self:getClientContact(other_desc)
+				msg = "juke " .. song
+				self.udp:sendto(msg, ip, tonumber(port))
+			end
+		end
 	elseif data:match("hrt") then
 		-- This is just the heartbeat for the client connection, do nothing
 	else
@@ -145,7 +159,7 @@ function ServerGame:newClient()
 		end
 	end
 
-	local client = { id = self.nextClientId, pos = newPos, dir = "down" }
+	local client = { id = self.nextClientId, pos = newPos, dir = "down", score = 0 }
 	self.nextClientId = self.nextClientId + 1
 	return client
 end
