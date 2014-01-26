@@ -6,13 +6,14 @@ local Map = require("Map")
 local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
-local DRINK_TYPE = {1, 2, 3, 4, 5}
-local DRINK_TYPE_SIZE = 5
+local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
+local DRINK_TYPE_SIZE = 6
 local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/beerGreen.png',
 						 'Assets/drinks/ice.png',
 						 'Assets/drinks/shotJello.png',
-						 'Assets/drinks/shotTequila.png'}
+						 'Assets/drinks/shotTequila.png',
+						 'Assets/drinks/wine.png'}
 
 
 function World:start(width, height)
@@ -72,6 +73,14 @@ function World:draw(playerPos)
 		end
 	end
 
+	-- Drinks
+	love.graphics.reset()
+	for id, drink in pairs(self.drinks) do
+		local pos = drink.pos
+		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
+		love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+	end
+
 	-- Players
 	--love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
@@ -81,17 +90,7 @@ function World:draw(playerPos)
 			love.graphics.reset()
 			self.players[id].pAnim:draw((pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 		end
-	end
-
-	-- Drinks
-	love.graphics.reset()
-	for id, drink in pairs(self.drinks) do
-		local pos = drink.pos
-		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
-		love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
-		--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
-		--love.graphics.print("Drink" .. id .. " P" .. Vector.tostring(drink.pos), pos.x + 50, pos.y + 10)
-	end
+	end	
 end
 
 function World:setPlayer(id, pos, dir, action)
@@ -99,7 +98,7 @@ function World:setPlayer(id, pos, dir, action)
 	local can_move = true
 
 	if not self.players[id] then
-		self.players[id] = {}
+		self.players[id] = {leftHand = 0, rightHand = 0}
 	end
 
 	if not self.players[id].pAnim then
@@ -191,7 +190,15 @@ function World:pickUp(pid, ppos)
 	for id, drink in pairs(self.drinks) do
 		if ppos == drink.pos then
 			-- put drink in inventory, doesn't exist yet
-			table.remove(self.drinks, id)
+			if self.players[pid].leftHand == 0 then
+				self.players[pid].leftHand = drink.type
+				table.remove(self.drinks, id)
+			elseif self.players[pid].rightHand == 0 then
+				self.players[pid].rightHand = drink.type
+				table.remove(self.drinks, id)
+			end
+			--two hands only, don't be greedy
+			--table.remove(self.drinks, id)
 		end
 	end
 end
