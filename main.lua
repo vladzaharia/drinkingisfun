@@ -11,12 +11,17 @@ SERVER_PORT = 12345
 SYNC_INTERVAL = 0.1
 
 local StateManager			= require("StateManager")
-local AttractState			= require("AttractState")
+local ServerGameState		= require("ServerGameState")
+local ClientConnectState		= require("ClientConnectState")
 
 
 function love.load(args)
 	love.keyboard.setKeyRepeat(true)
-	StateManager:start(AttractState)
+	if args[2] == "server" then
+		StateManager:start(ServerGameState)
+	else
+		StateManager:start(ClientConnectState)
+	end
 end
 
 function love.quit()
