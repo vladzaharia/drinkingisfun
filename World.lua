@@ -32,6 +32,9 @@ local bloomShader = love.graphics.newShader("bloom.fs")
 -- timer
 local sTime = 0
 
+-- Check if song was just changed
+local song_changed = 1
+
 function World:start(width, height)
 	self.width = width;
 	self.height = height
@@ -113,6 +116,11 @@ function World:update(dt)
 	end
 
 	sTime = sTime + love.timer.getAverageDelta()
+
+	--check song stuff
+	if song_changed > 0 then
+		song_changed = song_changed - 0.005
+	end
 end
 
 
@@ -270,11 +278,13 @@ end
 
 function World:handleJukeBox()
 	sManager:playNext()
+	song_changed = 1
 	return sManager:getSong()
 end
 
 function World:switchSong(id)
 	sManager:playSong(id)
+	song_changed = 1
 end
 
 function World:drawHUD(pid)
@@ -334,6 +344,16 @@ function World:drawHUD(pid)
 	else
 		love.graphics.setColor(STATUS_YELLOW)
 		love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100, (92/2)-8)
+	end
+
+	-- Song Changed
+	if song_changed > 0 then
+		love.graphics.setColor(255,255,255,255)
+		love.graphics.rectangle("fill", 460, 20, 320, 30)
+		local music = love.graphics.newImage("Assets/Music.png")
+		love.graphics.draw(music, 465, 25)
+		love.graphics.setColor(0,0,0,255)
+		love.graphics.print("Currently Playing: " .. sManager:getSongName(), 495, 30)
 	end
 
 end

@@ -18,6 +18,7 @@ function soundManager:new( )
 
 	sm.playNext = soundManager.playNext
 	sm.getSong = soundManager.getSong
+	sm.getSongName = soundManager.getSongName
 	sm.playSong = soundManager.playSong
 
 	sm.index = 1
@@ -74,6 +75,16 @@ end
 
 function soundManager:getSong()
 	return self.index
+end
+
+function soundManager:getSongName()
+	-- JAN - CHANGE THIS
+	local SONG_NAMES = {"Something - Fait Accompli", 
+						"Something - Rock", 
+						"Something - Smooth Jazz", 
+						"Something - Smeagle", 
+						"Something - Sunshine"}
+	return SONG_NAMES[self.index]
 end
 
 function soundManager:walk()
