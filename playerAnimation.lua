@@ -1,8 +1,8 @@
 require("AnAL")
 
 local playerAnimation = {}
-local COLORS = {"Red", "Green"}
-local NUM_COLORS = 2
+local COLORS = {"Red", "Green", "Blue"}
+local NUM_COLORS = 3
 
 function playerAnimation:new(player_color)
 	local M = {}
