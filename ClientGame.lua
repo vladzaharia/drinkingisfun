@@ -74,18 +74,66 @@ function ClientGame:key(key, action)
 	if action == "p" and not self.moving then
 		local curPos = World:getPlayerPosition(self.id)
 		local curDir = World:getPlayerDirection(self.id)
-
-		if key == Keys.Up then
-			ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
-		elseif key == Keys.Down then
-			ClientGame:updatePos(curPos - Vector(0, -1), 'down','walk')
-		elseif key == Keys.Left then
-			ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
-		elseif key == Keys.Right then
-			ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
-		elseif key == Keys.Space then
-			ClientGame:updatePos(curPos, curDir,'drink')
-			World:consumeDrink(self.id)
+		-- stumble walking
+		if bac >= 75 then	
+			if key == Keys.Up then
+				if ((math.random() >= 0.7) and (math.random() <= 0.8)) then
+					ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
+				elseif ((math.random() > 0.8) and (math.random() <= 0.9)) then
+					ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
+				elseif ((math.random() > 0.9) and (math.random() <= 1.0)) then
+					ClientGame:updatePos(curPos - Vector(0, -1), 'down','walk')
+				else
+					ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
+				end
+			elseif key == Keys.Down then
+				if ((math.random() >= 0.7) and (math.random() <= 0.8)) then
+					ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
+				elseif ((math.random() > 0.8) and (math.random() <= 0.9)) then
+					ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
+				elseif ((math.random() > 0.9) and (math.random() <= 1.0)) then
+					ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
+				else
+					ClientGame:updatePos(curPos - Vector(0, -1), 'down','walk')
+				end
+			elseif key == Keys.Left then
+				if ((math.random() >= 0.7) and (math.random() <= 0.8)) then
+					ClientGame:updatePos(curPos - Vector(0, -1), 'down','walk')
+				elseif ((math.random() > 0.8) and (math.random() <= 0.9)) then
+					ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
+				elseif ((math.random() > 0.9) and (math.random() <= 1.0)) then
+					ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
+				else
+					ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
+				end
+			elseif key == Keys.Right then
+				if ((math.random() >= 0.7) and (math.random() <= 0.8)) then
+					ClientGame:updatePos(curPos - Vector(0, -1), 'down','walk')
+				elseif ((math.random() > 0.8) and (math.random() <= 0.9)) then
+					ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
+				elseif ((math.random() > 0.9) and (math.random() <= 1.0)) then
+					ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
+				else
+					ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
+				end
+			elseif key == Keys.Space then
+				ClientGame:updatePos(curPos, curDir,'drink')
+				World:consumeDrink(self.id)
+			end
+		-- normal walking
+		else	
+			if key == Keys.Up then
+				ClientGame:updatePos(curPos - Vector(0, 1), 'up','walk')
+			elseif key == Keys.Down then
+				ClientGame:updatePos(curPos - Vector(0, -1), 'down','walk')
+			elseif key == Keys.Left then
+				ClientGame:updatePos(curPos - Vector(1, 0), 'left','walk')
+			elseif key == Keys.Right then
+				ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
+			elseif key == Keys.Space then
+				ClientGame:updatePos(curPos, curDir,'drink')
+				World:consumeDrink(self.id)
+			end
 		end
 	end
 
