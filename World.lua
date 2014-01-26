@@ -49,6 +49,12 @@ function World:update(dt)
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
 		p.pAnim:update(p.dir, p.action, dt)
+
+
+		player.bac = player.bac - 0.1
+		if player.bac < 0 then 
+			player.bac = 0 
+		end
 	end
 
 	--spawn drink
@@ -106,7 +112,7 @@ function World:draw(playerPos, pid)
 	love.graphics.reset()
 	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
 	local playerBAC = World:getPlayerBAC(pid)
-	if playerBAC > 45 then 
+	if playerBAC > 50 then 
 		if playerBAC < 100 then
 			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[2])
 		else 

@@ -55,6 +55,9 @@ end
 
 function ClientGame:draw()
 	World:draw(World:getPlayerPosition(self.id), self.id)
+	bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
+	love.graphics.print("Regret: " .. bac, 100, 580)
+
 end
 
 function ClientGame:key(key, action)
