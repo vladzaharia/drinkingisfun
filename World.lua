@@ -96,7 +96,7 @@ function World:update(dt)
 			end
 		end
 
-		if player.action == 'move' and not player.loser then
+		if player.action == 'move' then
 			-- Play footsteps
 			sManager:walk()
 			if not player.moveTime then
@@ -175,7 +175,7 @@ end
 
 
 function World:draw(pid)
-	if self.players[pid].loser == true and not self.players[pid].moveTime then
+	if self.players[pid].loser == true then
 		World:drawGameOver(self.players[pid].loserType)
 
 		return
