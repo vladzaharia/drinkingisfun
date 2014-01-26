@@ -56,7 +56,7 @@ function World:update(dt)
 	end
 end
 
-function World:draw(playerPos)
+function World:draw(playerPos, pid)
 	-- We want to center the player and move everything, so calculate offset
 	yCenter = math.floor(self.height / (GRID_SIZE * 2))
 	xCenter = math.floor(self.width / (GRID_SIZE * 2))
@@ -80,9 +80,10 @@ function World:draw(playerPos)
 	-- Drinks
 	love.graphics.reset()
 	for id, drink in pairs(self.drinks) do
-		local pos = drink.pos
-		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
-		love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+		World:drawDrink(drink.type, drink.pos, offsetPos)
+		--local pos = drink.pos
+		--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
+		--love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 	end
 
 	-- Players
@@ -98,13 +99,26 @@ function World:draw(playerPos)
 
 	-- Status
 	love.graphics.setColor(154,205,50,255)
-	love.graphics.rectangle("fill", 0, self.height - 120, self.width , 92)
+	love.graphics.rectangle("fill", 0, self.height - 92, self.width , 92)
 
 	-- profile place holder
 	love.graphics.reset()
 	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
-	love.graphics.draw(profileImage, 4, self.height - 116)
+	love.graphics.draw(profileImage, 4, self.height - 88)
 
+	-- hand HUD
+	local leftHand = self.players[pid].leftHand
+	local rightHand = self.players[pid].rightHand
+
+	if leftHand > 0 then
+		local leftInvImage = love.graphics.newImage(DRINK_FILE_NAME[leftHand])
+		love.graphics.draw(leftInvImage, 100, self.height - 88)
+	end
+
+	if rightHand > 0 then
+		local rightInvImage = love.graphics.newImage(DRINK_FILE_NAME[rightHand])
+		love.graphics.draw(rightInvImage, 155, self.height - 88)
+	end
 end
 
 function World:setPlayer(id, pos, dir, action)
@@ -162,6 +176,19 @@ end
 function World:getPlayerDirection(id)
 	return self.players[id].dir
 end
+
+function World:drawDrink(type, pos, offset)
+	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+	love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+end
+
+function World:drawInventory(dtype, x, y)
+	if not dtype == 0 then
+		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+		love.graphics.draw(drinkImage, x, y)
+	end
+end
+
 
 function World:spawnDrink()
 	local freeSpace = false
