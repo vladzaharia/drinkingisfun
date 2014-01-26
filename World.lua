@@ -15,6 +15,9 @@ local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/shotTequila.png',
 						 'Assets/drinks/wine.png'}
 
+-- Types of profiles
+local PROFILE_FILE_NAME = {'Assets/Profile/portraitDrunk.png'}
+
 
 function World:start(width, height)
 	self.width = width;
@@ -91,6 +94,16 @@ function World:draw(playerPos)
 			self.players[id].pAnim:draw((pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 		end
 	end	
+
+	-- Status
+	love.graphics.setColor(154,205,50,255)
+	love.graphics.rectangle("fill", 0, self.height - 120, self.width , 92)
+
+	-- profile place holder
+	love.graphics.reset()
+	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
+	love.graphics.draw(profileImage, 4, self.height - 116)
+
 end
 
 function World:setPlayer(id, pos, dir, action)
