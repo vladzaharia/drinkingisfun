@@ -185,7 +185,7 @@ function ClientGame:handleMessage(data)
 				newPos = World:setPlayer(id, pos, dir, "move")
 			end
 				
-			assert(newPos == pos, "failed updated position")
+			--assert(newPos == pos, "failed updated position")
 		end
 	elseif data:match("dis ") then
 		-- remove a player from the game
