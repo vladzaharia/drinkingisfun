@@ -4,6 +4,8 @@ local ClientGame = {}
 
 local socket 			= require("socket")
 local World 			= require("World")
+local SoundManager 		= require("SoundManager")
+local sManager = SoundManager:new()
 
 local HEARTBEAT_DELAY = 1
 
@@ -268,9 +270,10 @@ function ClientGame:handleMessage(data)
 	elseif data:match("iceNote ") then
 		local bac = data:match("iceNote (%S+)")
 		World:addToPlayerBAC(self.id, bac)
+		sManager:hit()
 	elseif data:match("iceRes") then
 		World:playerDropItem(self.id)
-
+		sManager:hit()
 	elseif data:match("drk ") then
 		-- Server has spawned a new drink, add it to our world
 		local drk_type, pos = data:match("drk (%w+) (%S+,%S+)")

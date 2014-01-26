@@ -11,6 +11,9 @@ function soundManager:new( )
 	sm.pickup = love.audio.newSource("Assets/SoundEffects/pickup.wav", "static")
 	sm.stash = soundManager.stash
 
+	sm.ice = love.audio.newSource("Assets/SoundEffects/ice.wav", "static")
+	sm.hit = soundManager.hit
+
 	sm.startMusic = soundManager.startMusic
 	sm.stopMusic = soundManager.stopMusic
 	sm.startGameOverMusic = soundManager.startGameOverMusic
@@ -98,10 +101,12 @@ function soundManager:stash()
 	self.pickup:play()
 end
 
+function soundManager:hit()
+	self.ice:play()
+end
+
 function soundManager:startMusic()
 	self.playlist[self.index]:play()
-	--self.music:setVolume(0.7)
-	--self.music:play()
 end
 
 function soundManager:stopMusic()
