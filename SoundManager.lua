@@ -12,6 +12,7 @@ function soundManager:new( )
 	sm.music = love.audio.newSource("Music/faitaccompli.wav")
 	sm.music:setLooping(true)
 	sm.startMusic = soundManager.startMusic
+	sm.smeagle = love.audio.newSource("Music/Smeagle.wav")
 	return sm
 end
 
@@ -30,6 +31,15 @@ end
 function soundManager:startMusic()
 	self.music:setVolume(0.7)
 	self.music:play()
+end
+
+function soundManager:stopMusic()
+	self.music:stop()
+end
+
+function soundManager:gameOver()
+	self.smeagle:setVolume(0.7)
+	self.smeagle:play()
 end
 
 return soundManager

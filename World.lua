@@ -106,6 +106,7 @@ function World:decayBAC(id)
 
 	--please enjoy responsibly
 	if pbac > 100 then
+		self.players[id].loser = true
 		return
 	end
 
@@ -121,6 +122,7 @@ function World:decayBAC(id)
 
 	if (pbac - penalty) < 0 then
 		self.players[id].bac = 0
+		self.players[id].loser = true
 	else
 		self.players[id].bac = pbac - penalty
 	end
@@ -151,6 +153,11 @@ function World:getPlayerScore(id)
 end
 
 function World:draw(pid)
+	if self.players[pid].loser == true then
+		World:drawGameOver()
+		return
+	end
+
 	World:calculateOffset(pid)
 	
 	love.graphics.setShader(bloomShader)
@@ -209,6 +216,10 @@ end
 function World:drawDrink(type, pos, offset)
 	local drinkImage = Assets:getDrinkImage(type)
 	love.graphics.draw(drinkImage, pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
+end
+
+function World:drawGameOver()
+	love.graphics.draw(Assets:getGameOverImage())
 end
 
 function World:drawPlayers()

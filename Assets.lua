@@ -28,6 +28,12 @@ local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
 							'Assets/Profile/portraitTipsy.png',
 							'Assets/Profile/portraitDrunk.png'}
 
+local GAME_OVER_SCREEN = 'Assets/Screens/GameOver.png'
+
+function Assets:getGameOverImage()
+	return love.graphics.newImage(GAME_OVER_SCREEN)
+end
+
 function Assets:getLeftHandImage(index)
 	return love.graphics.newImage(LEFT_HAND_FILE_NAME[index])
 end
