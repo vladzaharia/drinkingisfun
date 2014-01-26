@@ -91,6 +91,7 @@ function playerAnimation:init()
 	table.insert(self.animations,anim12)
 	table.insert(self.animations,anim13)
 	table.insert(self.animations,anim14)
+end
 
 -- direction: left right up down
 -- action: drink stand walk
