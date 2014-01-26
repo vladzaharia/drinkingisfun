@@ -38,6 +38,14 @@ local sTime = 0
 -- Check if song was just changed
 local song_changed = 1
 
+local hit = false
+
+function World:setHit(isHit, id)
+	local p = self.players[id]
+	p.drinkice = isHit
+end
+
+
 function World:start(width, height)
 	self.width = width;
 	self.height = height
@@ -77,6 +85,12 @@ function World:update(dt)
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
 		local pAction = p.action
+
+		if(p.drinkice) then
+			pAction = 'drink'
+			p.drinkice = false
+		end
+
 		if(World:inPool(p.pos)) then
 			pAction = 'swim'
 		end
@@ -371,7 +385,8 @@ function World:setPlayer(id, pos, dir, action)
 							rightHand = 0, 
 							bac = 30, 
 							score = 0,
-							loser = false}
+							loser = false,
+							drinkice = false}
 	end
 
 	World:addScore(id)
