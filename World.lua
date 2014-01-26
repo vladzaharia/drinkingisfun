@@ -350,7 +350,7 @@ function World:setPlayer(id, pos, dir, action)
 	World:addScore(id)
 
 	if not self.players[id].pAnim then
-		self.players[id].pAnim = playerAnimation:new()
+		self.players[id].pAnim = playerAnimation:new(playerAnimation:getColor(id))
 		self.players[id].pAnim:init()
 	end
 
