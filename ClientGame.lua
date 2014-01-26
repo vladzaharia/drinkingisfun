@@ -78,6 +78,7 @@ function ClientGame:key(key, action)
 		local curDir = World:getPlayerDirection(self.id)
 		local bac = World:getPlayerBAC(self.id)
 		-- stumble walking
+		local bac = World:getPlayerBAC(self.id)
 		if bac >= 75 then	
 			if key == Keys.Up then
 				if ((math.random() >= 0.7) and (math.random() <= 0.8)) then

@@ -26,6 +26,9 @@ local STATUS_YELLOW = {225,225,0,255}
 local STATUS_GREEN = {34,139,34,255}
 local STATUS_RED = {220,20,60, 255}
 
+-- shaders
+local bloomShader = love.graphics.newShader("bloom.fs")
+
 function World:start(width, height)
 	self.width = width;
 	self.height = height
@@ -149,10 +152,19 @@ end
 function World:draw(pid)
 	World:calculateOffset(pid)
 	
+	--if World:getPlayerBAC(pid) > 30 then
+		bloomShader:send("BAC", World:getPlayerBAC(pid)*0.003)
+		love.graphics.setShader(bloomShader)
+	--end
 	World:drawBackground()
+	love.graphics.reset()
+	love.graphics.setShader()
 	World:drawDrinks()
+	love.graphics.reset()
 	World:drawPlayers()
+	love.graphics.reset()
 	World:drawHUD(pid)
+	love.graphics.reset()
 end
 
 function World:calculateOffset(pid)
