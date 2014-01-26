@@ -36,7 +36,7 @@ function World:start(width, height)
 	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 
 	---test making drinks
-	for i=1, 3 do
+	for i=1, 4 do
 		World:spawnDrink()
 	end
 
