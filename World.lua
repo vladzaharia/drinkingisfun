@@ -282,14 +282,11 @@ end
 function World:switchSong(id)
 	sManager:playSong(id)
 	song_changed = 1
-<<<<<<< HEAD
 end
 
 function World:drawJukebox()
 	jukeboxPos = Vector(14*GRID_SIZE+offsetPos.x-GRID_SIZE,14*GRID_SIZE+offsetPos.y-GRID_SIZE)
 	jAnimation:draw(jukeboxPos.x,jukeboxPos.y)
-=======
->>>>>>> e289b33dc647c91dd322854ede5c1f3323a7b858
 end
 
 function World:drawHUD(pid)

@@ -147,14 +147,11 @@ function ServerGame:handleMessage(ip, port, data)
 				self.udp:sendto(msg, ip, tonumber(port))
 			end
 		end
-<<<<<<< HEAD
-=======
 	elseif data:match("drk ") then
 		local client = self.clients[desc]
 		local pos = data:match("drk (%S+,%S+)")
 		pos = Vector.fromstring(pos)
 		self:removeDrink(pos, desc)
->>>>>>> e289b33dc647c91dd322854ede5c1f3323a7b858
 	elseif data:match("hrt") then
 		-- This is just the heartbeat for the client connection, do nothing
 	else

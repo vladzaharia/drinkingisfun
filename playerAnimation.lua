@@ -1,13 +1,8 @@
 require("AnAL")
 
 local playerAnimation = {}
-<<<<<<< HEAD
-local COLORS = {"Red", "Green"}
-local NUM_COLORS = 2
-=======
 local COLORS = {"Red", "Green", "Blue"}
 local NUM_COLORS = 3
->>>>>>> e289b33dc647c91dd322854ede5c1f3323a7b858
 
 function playerAnimation:new(player_color)
 	local M = {}
@@ -96,11 +91,6 @@ function playerAnimation:init()
 	table.insert(self.animations,anim12)
 	table.insert(self.animations,anim13)
 	table.insert(self.animations,anim14)
-<<<<<<< HEAD
-=======
-
->>>>>>> e289b33dc647c91dd322854ede5c1f3323a7b858
-end
 
 -- direction: left right up down
 -- action: drink stand walk
