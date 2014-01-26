@@ -72,7 +72,11 @@ function World:update(dt)
 	for id, player in pairs(self.players) do
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
-		p.pAnim:update(p.dir, p.action, dt)
+		local pAction = p.action
+		if(World:inPool(p.pos)) then
+			pAction = 'swim'
+		end
+		p.pAnim:update(p.dir, pAction, dt)
 
 		World:decayBAC(id)
 		
@@ -368,6 +372,10 @@ function World:checkIfDrowned(id)
 	if self.world[pos.y][pos.x] == "P" and self.players[id].bac > BAC_THRESHOLD[2] then
 		self.players[id].loser = true
 	end
+end
+
+function World:inPool(pos)
+	return self.world[pos.y][pos.x] == "P"
 end
 
 function World:isPossibleMove(pos)
