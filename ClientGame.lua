@@ -15,6 +15,7 @@ function ClientGame:start(args)
 	self.udp = args.udp
 	self.moving = false
 	self.timeSinceLastHeartbeat = 0
+	self.updated = true
 	_G["udpSocket"] = self.udp
 	
 	World:start(love.window.getWidth(), love.window.getHeight())
@@ -52,7 +53,7 @@ function ClientGame:update(dt)
 	World:update(dt)
 
 	-- Send client update to server
-	if not self.moving then
+	if not self.moving and self.updated then
 		local pos = World:getPlayerPosition(self.id)
 		local dir = World:getPlayerDirection(self.id)
 		local scr = World:getPlayerScore(self.id)
@@ -61,6 +62,9 @@ function ClientGame:update(dt)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 	end
+
+	-- Reset updated
+	self.updated = false
 
 	-- Track how long it's been since our last heartbeat and send one if it has passed some threshold
 	self.timeSinceLastHeartbeat = self.timeSinceLastHeartbeat + dt
@@ -94,6 +98,7 @@ end
 
 function ClientGame:key(key, action)
 	if (action == "p" or action == "re") and not self.moving and not World:isPlayerMoving(self.id) then
+		self.updated = true
 		local curPos = World:getPlayerPosition(self.id)
 		local curDir = World:getPlayerDirection(self.id)
 		local bac = World:getPlayerBAC(self.id)
