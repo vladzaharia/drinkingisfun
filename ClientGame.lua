@@ -65,8 +65,8 @@ end
 
 function ClientGame:draw()
 	World:draw(self.id)
-	--bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
-	score = tonumber(string.format("%.1f", World:getPlayerScore(self.id)))
+	--local bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
+	local score = tonumber(string.format("%.1f", World:getPlayerScore(self.id)))
 	love.graphics.setColor(0,0,0,255)
 	love.graphics.print("Points: " .. score, 100, 580)
 
@@ -76,6 +76,7 @@ function ClientGame:key(key, action)
 	if (action == "p" or action == "re") and not self.moving and not World:isPlayerMoving(self.id) then
 		local curPos = World:getPlayerPosition(self.id)
 		local curDir = World:getPlayerDirection(self.id)
+		local bac = World:getPlayerBAC(self.id)
 		-- stumble walking
 		if bac >= 75 then	
 			if key == Keys.Up then

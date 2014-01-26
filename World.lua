@@ -90,7 +90,7 @@ function World:update(dt)
 
 	--spawn drink
 	local drink_count = World:tableSize(self.drinks)
-	if drink_count < 3 then
+	if drink_count < 4 then
 		World:spawnDrink()
 	end
 end
