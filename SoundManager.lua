@@ -7,18 +7,13 @@ function soundManager:new( )
 	sm.drink = soundManager.drink
 	sm.steps = love.audio.newSource("Assets/SoundEffects/steps.wav", "static")
 	sm.walk = soundManager.walk
+	sm.pickup = love.audio.newSource("Assets/SoundEffects/pickup.wav", "static")
+	sm.stash = soundManager.stash
 	sm.music = love.audio.newSource("Music/faitaccompli.wav")
+	sm.music:setLooping(true)
 	sm.startMusic = soundManager.startMusic
 	return sm
 end
-
---function soundManager:init()
---	local swallow = love.audio.newSource("Assets/SoundEffects/swallow.wav", "static")
-	--swallow:setVolume(1.0)
-
---	music = love.audio.newSource("Music/faitaccompli.wav")
-	--music.play()
---end
 
 function soundManager:walk()
 	self.steps:play()
@@ -26,6 +21,10 @@ end
 
 function soundManager:drink()
 	self.swallow:play()
+end
+
+function soundManager:stash()
+	self.pickup:play()
 end
 
 function soundManager:startMusic()

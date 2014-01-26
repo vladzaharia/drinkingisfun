@@ -328,13 +328,11 @@ function World:consumeDrink(pid)
 		player.bac = player.bac + DRINK_CONTENT[player.rightHand]
 		player.rightHand = 0
 		sManager:drink()
-		--sManager.swallow.play()
 	elseif player.leftHand > 0 then
 		--do something with bar
 		player.bac = player.bac + DRINK_CONTENT[player.leftHand]
 		player.leftHand = 0
 		sManager:drink()
-		--sManager.swallow.play()
 	end
 end
 
@@ -382,9 +380,11 @@ function World:pickUp(pid, ppos)
 			if self.players[pid].leftHand == 0 then
 				self.players[pid].leftHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			elseif self.players[pid].rightHand == 0 then
 				self.players[pid].rightHand = drink.type
 				table.remove(self.drinks, id)
+				sManager:stash()
 			end
 			--two hands only, don't be greedy
 			--table.remove(self.drinks, id)
