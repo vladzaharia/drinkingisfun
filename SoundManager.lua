@@ -17,6 +17,8 @@ function soundManager:new( )
 	sm.smeagle = love.audio.newSource("Music/Smeagle.wav")
 
 	sm.playNext = soundManager.playNext
+	sm.getSong = soundManager.getSong
+	sm.playSong = soundManager.playSong
 
 	sm.index = 1
 	return sm
@@ -57,7 +59,21 @@ function soundManager:playNext()
 
 	-- Play next song
 	self.playlist[self.index]:play()
+end
 
+function soundManager:playSong(id)
+	local id = tonumber(id)
+
+	if id <= 5 then
+		-- Play next song
+		self.playlist[self.index]:stop()
+		self.index = id
+		self.playlist[self.index]:play()
+	end
+end
+
+function soundManager:getSong()
+	return self.index
 end
 
 function soundManager:walk()

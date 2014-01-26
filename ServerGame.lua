@@ -119,6 +119,19 @@ function ServerGame:handleMessage(ip, port, data)
 		client.dir = dir
 		local result, err = self.udp:sendto("acc " .. client.pos .. " " .. client.dir, ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
+	elseif data:match("juke ") then
+		local client = self.clients[desc]
+		local id,song = data:match("juke (%w+) (%d)")
+		assert(tonumber(id) == client.id, "Bad client id for this client")
+
+		-- Send update to all other clients
+		for other_desc, other_client in pairs(self.clients) do 
+			if desc ~= other_desc then
+				local ip, port = self:getClientContact(other_desc)
+				msg = "juke " .. song
+				self.udp:sendto(msg, ip, tonumber(port))
+			end
+		end
 	elseif data:match("hrt") then
 		-- This is just the heartbeat for the client connection, do nothing
 	else

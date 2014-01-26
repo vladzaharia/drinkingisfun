@@ -266,6 +266,11 @@ end
 
 function World:handleJukeBox()
 	sManager:playNext()
+	return sManager:getSong()
+end
+
+function World:switchSong(id)
+	sManager:playSong(id)
 end
 
 function World:drawHUD(pid)
