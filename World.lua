@@ -8,6 +8,7 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
+local DRINK_CONTENT = {5, 5, 20, 15, 15, 10}
 local DRINK_TYPE_SIZE = 6
 local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/beerGreen.png',
@@ -17,8 +18,9 @@ local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/wine.png'}
 
 -- Types of profiles
-local PROFILE_FILE_NAME = {'Assets/Profile/portraitDrunk.png'}
-
+local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
+							'Assets/Profile/portraitTipsy.png',
+							'Assets/Profile/portraitDrunk.png'}
 
 function World:start(width, height)
 	self.width = width;
@@ -47,6 +49,12 @@ function World:update(dt)
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
 		p.pAnim:update(p.dir, p.action, dt)
+
+
+		player.bac = player.bac - 0.1
+		if player.bac < 0 then 
+			player.bac = 0 
+		end
 	end
 
 	--spawn drink
@@ -97,7 +105,7 @@ end
 
 function World:drawDrink(type, pos, offset)
 	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
-	love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+	love.graphics.draw(drinkImage, (pos.x+offset.x)*GRID_SIZE-GRID_SIZE, (pos.y+offset.y)*GRID_SIZE-GRID_SIZE)
 end
 
 function World:drawPlayers()
@@ -121,6 +129,15 @@ function World:drawHUD(pid)
 	-- profile place holder
 	love.graphics.reset()
 	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
+	local playerBAC = World:getPlayerBAC(pid)
+	if playerBAC > 50 then 
+		if playerBAC < 100 then
+			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[2])
+		else 
+			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[3])
+		end
+	end
+
 	love.graphics.draw(profileImage, 4, self.height - 88)
 
 	-- hand HUD
@@ -136,6 +153,7 @@ function World:drawHUD(pid)
 		local rightInvImage = love.graphics.newImage(DRINK_FILE_NAME[rightHand])
 		love.graphics.draw(rightInvImage, 155, self.height - 88)
 	end
+
 end
 
 function World:setPlayer(id, pos, dir, action)
@@ -143,7 +161,7 @@ function World:setPlayer(id, pos, dir, action)
 	local can_move = true
 
 	if not self.players[id] then
-		self.players[id] = {leftHand = 0, rightHand = 0}
+		self.players[id] = {leftHand = 0, rightHand = 0, bac = 0}
 	end
 
 	if not self.players[id].pAnim then
@@ -194,6 +212,10 @@ function World:getPlayerDirection(id)
 	return self.players[id].dir
 end
 
+function World:getPlayerBAC(id)
+	return self.players[id].bac
+end
+
 function World:drawInventory(dtype, x, y)
 	if not dtype == 0 then
 		local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
@@ -201,6 +223,18 @@ function World:drawInventory(dtype, x, y)
 	end
 end
 
+function World:consumeDrink(pid)
+	local player = self.players[pid]
+	if player.rightHand > 0 then
+		--do something with bar
+		player.bac = player.bac + DRINK_CONTENT[player.rightHand]
+		player.rightHand = 0
+	elseif player.leftHand > 0 then
+		--do something with bar
+		player.bac = player.bac + DRINK_CONTENT[player.leftHand]
+		player.leftHand = 0
+	end
+end
 
 function World:spawnDrink()
 	local freeSpace = false

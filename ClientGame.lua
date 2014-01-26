@@ -55,6 +55,8 @@ end
 
 function ClientGame:draw()
 	World:draw(World:getPlayerPosition(self.id), self.id)
+	bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
+	love.graphics.print("Regret: " .. bac, 100, 580)
 
 end
 
@@ -73,6 +75,7 @@ function ClientGame:key(key, action)
 			ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
 		elseif key == Keys.Space then
 			ClientGame:updatePos(curPos, curDir,'drink')
+			World:consumeDrink(self.id)
 		end
 	end
 end
