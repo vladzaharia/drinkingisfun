@@ -111,9 +111,11 @@ function ServerGame:handleMessage(ip, port, data)
 		local client = self.clients[desc]
 		local id,vec,dir = data:match("req (%w+) (%S+,%S+) (%a*)")
 		assert(tonumber(id) == client.id, "Bad client id for this client")
-		client.pos = Vector.fromstring(vec)
+		local newPos = Vector.fromstring(vec)
+		if self:isPossibleMove(newPos) then
+			client.pos = newPos
+		end		
 		client.dir = dir
-		-- Probably should collision detect here...
 		local result, err = self.udp:sendto("acc " .. client.pos .. " " .. client.dir, ip, port)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
 	elseif data:match("hrt") then
