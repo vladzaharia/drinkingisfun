@@ -15,8 +15,8 @@ local Map = {}
 local World1 = {{"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"},
                 {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
-                {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
-                {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, "W", "W", "W", nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, "W", "W", "W", nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
                 {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, "W", "W", "W", "W", "W", "W", "W", nil, nil, "W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, "W"},
@@ -27,10 +27,10 @@ local World1 = {{"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"
                 {"W", nil, nil, nil, nil, nil, "W", "W", "W", "W", nil, nil, "W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
-                {"W", nil, nil, "W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, "W", "W", "W", "W", "W", nil, nil, "W", nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
                 {"W", nil, nil, nil, "W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
-                {"W", nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
-                {"W", nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", "W", "W"},
+                {"W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", "W", "W", "W", "W"},
                 {"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"}}
 
 local ExampleWorld = {}
