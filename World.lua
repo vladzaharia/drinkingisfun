@@ -18,8 +18,9 @@ local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/wine.png'}
 
 -- Types of profiles
-local PROFILE_FILE_NAME = {'Assets/Profile/portraitDrunk.png'}
-
+local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
+							'Assets/Profile/portraitTipsy.png',
+							'Assets/Profile/portraitDrunk.png'}
 
 function World:start(width, height)
 	self.width = width;
@@ -104,6 +105,15 @@ function World:draw(playerPos, pid)
 	-- profile place holder
 	love.graphics.reset()
 	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
+	local playerBAC = World:getPlayerBAC(pid)
+	if playerBAC > 45 then 
+		if playerBAC < 100 then
+			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[2])
+		else 
+			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[3])
+		end
+	end
+
 	love.graphics.draw(profileImage, 4, self.height - 88)
 
 	-- hand HUD
@@ -119,6 +129,7 @@ function World:draw(playerPos, pid)
 		local rightInvImage = love.graphics.newImage(DRINK_FILE_NAME[rightHand])
 		love.graphics.draw(rightInvImage, 155, self.height - 88)
 	end
+
 end
 
 function World:setPlayer(id, pos, dir, action)
