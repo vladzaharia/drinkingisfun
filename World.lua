@@ -29,6 +29,9 @@ local STATUS_RED = {220,20,60, 255}
 -- shaders
 local bloomShader = love.graphics.newShader("bloom.fs")
 
+-- timer
+local sTime = 0
+
 function World:start(width, height)
 	self.width = width;
 	self.height = height
@@ -102,6 +105,8 @@ function World:update(dt)
 	if drink_count < 15 then
 		World:spawnDrink()
 	end
+
+	sTime = sTime +  love.timer.getAverageDelta()
 end
 
 
@@ -157,6 +162,7 @@ function World:getPlayerScore(id)
 	return self.players[id].score
 end
 
+
 function World:draw(pid)
 	if self.players[pid].loser == true then
 		World:drawGameOver()
@@ -167,7 +173,11 @@ function World:draw(pid)
 	World:calculateOffset(pid)
 	
 	love.graphics.setShader(bloomShader)
-	bloomShader:send("BAC", World:getPlayerBAC(pid)*0.003)
+	bloomShader:send("BAC", World:getPlayerBAC(pid))
+	bloomShader:send("cScale", World:getPlayerBAC(pid)*0.003)
+	bloomShader:send("eTime", sTime)
+
+
 	World:drawBackground()
 	love.graphics.reset()
 	love.graphics.setShader()
