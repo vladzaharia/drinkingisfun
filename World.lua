@@ -429,6 +429,10 @@ function World:removePlayer(id)
 	self.players[id] = nil
 end
 
+function World:getPlayer(id)
+	return self.players[id]
+end
+
 function World:getPlayerPosition(id)
 	if self.players[id] then
 		return self.players[id].pos or Vector(0,0)
@@ -515,11 +519,13 @@ function World:pickUp(pid, ppos)
 	end
 end
 
-function World:removeDrink(pos)
-	for id, drink in pairs(self.drinks) do
-		if drink.pos == pos then
-			self.drinks[id] = nil
-		end
+
+function World:playerDropItem(pid)
+	local player = self.players[pid]
+	if player.rightHand > 0 then
+		player.rightHand = 0
+	elseif player.leftHand > 0 then
+		player.leftHand = 0
 	end
 end
 
@@ -533,6 +539,53 @@ end
 
 function World:toggleBloom()
 	self.bloomStatus = not self.bloomStatus
+end
+
+function World:attemptIce(id)
+	local leftHand = self.players[id].leftHand
+	local rightHand = self.players[id].rightHand
+	local currPos = self.players[id].pos
+	local currX = self.players[id].pos.x
+	local currY = self.players[id].pos.y
+	local currDir = self.players[id].dir
+	local targetVec = Vector(0,0)
+	local targetId = -1
+
+	if currDir == 'left' then
+		targetVec = Vector(currX-1, currY)
+	elseif currDir == 'right' then
+		targetVec = Vector(currX+1, currY)
+	elseif currDir == 'up' then
+		targetVec = Vector(currX, currY-1)
+	elseif currDir == 'down' then
+		targetVec = Vector(currX, currY+1)
+	end
+
+	for pid, player in pairs(self.players) do
+		if Vector:eq(self.players[pid], targetVec) and pid ~= id then
+			targetId = pid
+		end
+	end
+
+	if targetId == -1 then
+		print("target miss")
+		return
+	end
+
+	local bac = 0
+	if rightHand > 0 then
+		bac = DRINK_CONTENT[rightHand] * 1.5
+	elseif leftHand > 0 then
+		bac = DRINK_CONTENT[leftHand] * 1.5
+	elseif bac == 0 then
+		return
+	end
+
+	local msg = "iceReq " .. id .. " " .. targetId .. " " .. targetVec .. " " .. bac
+	print(msg)
+	local result, err = _G["udpSocket"]:send(msg)
+	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+		(err or "none"))
 end
 
 return World

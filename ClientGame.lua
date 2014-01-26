@@ -13,10 +13,7 @@ function ClientGame:start(args)
 	self.udp = args.udp
 	self.moving = false
 	self.timeSinceLastHeartbeat = 0
-
-	-- HACK this is to get messages from the World
-	UDPSOCKET = self.udp
-	-- END HACK
+	_G["udpSocket"] = self.udp
 	
 	World:start(love.window.getWidth(), love.window.getHeight())
 	World:setPlayer(args.id, args.pos, 'down')
@@ -143,6 +140,8 @@ function ClientGame:key(key, action)
 				end
 			elseif key == "b" then
 				World:toggleBloom()
+			elseif key == "c" then
+				World:attemptIce(self.id)
 			elseif key == Keys.Space then
 				if ClientGame:isNextToJukeBox(curPos, curDir) then 
 					local newSong = World:handleJukeBox()
@@ -151,6 +150,7 @@ function ClientGame:key(key, action)
 					ClientGame:updatePos(curPos, curDir,'drink')
 					World:consumeDrink(self.id)
 				end
+
 			end
 		-- normal walking
 		else	
@@ -164,6 +164,8 @@ function ClientGame:key(key, action)
 				ClientGame:updatePos(curPos - Vector(-1, 0), 'right','walk')
 			elseif key == "b" then
 				World:toggleBloom()
+			elseif key == "c" then
+				World:attemptIce(self.id)
 			elseif key == Keys.Space then
 				if ClientGame:isNextToJukeBox(curPos, curDir) then 
 					local newSong = World:handleJukeBox()
@@ -262,16 +264,23 @@ function ClientGame:handleMessage(data)
 		pos = Vector.fromstring(pos)
 		World:setPlayer(self.id, pos, dir, "move")
 		self.moving = false
+
+	elseif data:match("iceNote ") then
+		local bac = data:match("iceNote (%S+)")
+		World:addToPlayerBAC(self.id, bac)
+	elseif data:match("iceRes") then
+		World:playerDropItem(self.id)
+
 	elseif data:match("drk ") then
 		-- Server has spawned a new drink, add it to our world
 		local drk_type, pos = data:match("drk (%w+) (%S+,%S+)")
 		drk_type = tonumber(drk_type)
 		pos = Vector.fromstring(pos)
 		World:addDrink(drk_type, pos)
+
 	else
 		assert(false, "Bad message: " .. data)
 	end
 end
-
 
 return ClientGame
