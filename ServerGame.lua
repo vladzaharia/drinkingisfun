@@ -56,7 +56,7 @@ function ServerGame:draw()
 	love.graphics.print("Client list:", 10, 30)
 	local y = 50
 	for id,client in pairs(self.clients) do
-		love.graphics.print(id, 10, y)
+		love.graphics.print(id .. " - Position (" .. client.pos .. ")", 10, y)
 		y = y + 20
 	end
 
