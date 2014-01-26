@@ -140,8 +140,12 @@ function ClientGame:key(key, action)
 			elseif key == "b" then
 				World:toggleBloom()
 			elseif key == Keys.Space then
-				ClientGame:updatePos(curPos, curDir,'drink')
-				World:consumeDrink(self.id)
+				if ClientGame:isNextToJukeBox(curPos, curDir) then 
+					World:handleJukeBox()
+				else 
+					ClientGame:updatePos(curPos, curDir,'drink')
+					World:consumeDrink(self.id)
+				end
 			end
 		end
 	end
@@ -150,6 +154,15 @@ function ClientGame:key(key, action)
 	if key == "r" then
 		assert(false, "This is an intentional crash you get by hitting 'R'")
 	end
+end
+
+function ClientGame:isNextToJukeBox(pos, dir)
+	-- JukeBox is at (14, 14)
+
+	local doIt = (pos.x == 13 and pos.y == 14 and dir == 'right')
+	doIt = doIt or (pos.x == 15 and pos.y == 14 and dir == 'left')
+	doIt = doIt or (pos.y == 15 and pos.x==14 and dir == 'up')
+	return doIt
 end
 
 function ClientGame:updatePos(newPos, dir, action)

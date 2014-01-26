@@ -16,7 +16,7 @@ local DRINK_TYPE_SIZE = 6
 
 -- BAC thresholds
 local BAC_THRESHOLD = {30, 70}
-local BAC_DECAY_RATE = {0.05, 0.07, 0.12}
+local BAC_DECAY_RATE = {0.02, 0.04, 0.09}
 
 local SCORE_MULTIPLIER = {0.05, 0.1, 0.15}
 
@@ -49,6 +49,7 @@ function World:start(width, height)
 	end
 
 	--start the music
+	sManager:init()
 	sManager:startMusic()
 end
 
@@ -107,7 +108,7 @@ function World:update(dt)
 		World:spawnDrink()
 	end
 
-	sTime = sTime +  love.timer.getAverageDelta()
+	sTime = sTime + love.timer.getAverageDelta()
 end
 
 
@@ -260,6 +261,10 @@ function World:drawPlayers()
 			self.players[id].pAnim:draw(finalPos.x, finalPos.y)
 		end
 	end	
+end
+
+function World:handleJukeBox()
+	sManager:playNext()
 end
 
 function World:drawHUD(pid)
