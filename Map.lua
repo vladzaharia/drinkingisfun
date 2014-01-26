@@ -11,7 +11,33 @@ local Map = {}
 -- 					  {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"}, 
 -- 					  {"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"}}
 
+
+local World1 = {{"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"},
+                {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, "W", "W", "W", "W", "W", "W", nil, nil, "W"},
+                {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, "W", "W", "W", "W", "W", "W", "W", nil, nil, "W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, "W"},
+                {nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, "W", "W", "W", "W", nil, nil, "W", nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, "W", nil, nil, "W", nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, "W", "W", "W", "W", nil, nil, "W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, "W", "W", "W", "W", "W", nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, "W", nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
+                {"W", nil, nil, nil, "W", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "W"},
+                {"W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"}}
+
 local ExampleWorld = {}
+
+function Map:getWorld()
+  return World1
+end
 
 function Map:getExampleWorld(width, height)
 	numRows = math.floor(height / GRID_SIZE)

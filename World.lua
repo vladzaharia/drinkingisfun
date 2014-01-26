@@ -34,7 +34,8 @@ function World:start(width, height)
 	self.height = height
 	self.players = {}
 	self.platforms = {}
-	self.world = Map:getExampleWorld(width, height)
+	--self.world = Map:getExampleWorld(width, height)
+	self.world = Map:getWorld()
 	self.drinks = {}
 	self.mapImage = love.graphics.newImage("Assets/World/MapF1.png")
 
@@ -93,7 +94,7 @@ function World:update(dt)
 
 	--spawn drink
 	local drink_count = World:tableSize(self.drinks)
-	if drink_count < 4 then
+	if drink_count < 15 then
 		World:spawnDrink()
 	end
 end
@@ -184,17 +185,17 @@ function World:drawBackground()
 	-- Draw the world
 	love.graphics.draw(self.mapImage, offsetPos.x, offsetPos.y)
 
-	for y, row in pairs(self.world) do
-		for x, item in pairs(row) do
-			if item then
-				if item == "W" then
-					love.graphics.setColor(0, 0, 255, 255)
-				end
+	-- for y, row in pairs(self.world) do
+	-- 	for x, item in pairs(row) do
+	-- 		if item then
+	-- 			if item == "W" then
+	-- 				love.graphics.setColor(0, 0, 255, 255)
+	-- 			end
 
-				love.graphics.rectangle("fill", x*GRID_SIZE+offsetPos.x-GRID_SIZE, y*GRID_SIZE+offsetPos.y-GRID_SIZE, GRID_SIZE, GRID_SIZE)
-			end
-		end
-	end
+	-- 			love.graphics.rectangle("fill", x*GRID_SIZE+offsetPos.x-GRID_SIZE, y*GRID_SIZE+offsetPos.y-GRID_SIZE, GRID_SIZE, GRID_SIZE)
+	-- 		end
+	-- 	end
+	-- end
 end
 
 function World:drawDrinks()
