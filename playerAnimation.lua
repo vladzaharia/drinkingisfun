@@ -79,7 +79,7 @@ function playerAnimation:update(direction, action, dt)
 		else
 			self.index = 10
 		end
-	elseif action == 'walk' then
+	elseif action == 'walk' or action == 'move' then
 		if direction == 'up' then
 			self.index = 1
 		elseif direction == 'down' then

@@ -45,6 +45,8 @@ end
 
 function World:update(dt)
 	-- check for item to pickup, item currently goes into the abyss
+	-- also stop drinking
+	-- also update bac
 	for id, player in pairs(self.players) do
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
@@ -55,6 +57,28 @@ function World:update(dt)
 		if player.bac < 0 then 
 			player.bac = 0 
 		end
+
+		if player.action == 'drink' then
+			if not player.drinkTime then
+				player.drinkTime = 0
+			elseif player.drinkTime >= 1 then
+				player.action = 'stand'
+				player.drinkTime = nil
+			else
+				player.drinkTime = player.drinkTime + 0.03
+			end
+		end
+
+		if player.action == 'move' then
+			if not player.moveTime then
+				player.moveTime = 0
+			elseif player.moveTime >= 1 then
+				player.action = 'stand'
+				player.moveTime = nil
+			else
+				player.moveTime = player.moveTime + 0.03
+			end
+		end
 	end
 
 	--spawn drink
@@ -64,17 +88,28 @@ function World:update(dt)
 	end
 end
 
-function World:draw(playerPos, pid)
-	-- We want to center the player and move everything, so calculate offset
-	local yCenter = math.floor(self.height / (GRID_SIZE * 2))
-	local xCenter = math.floor(self.width / (GRID_SIZE * 2))
-	local centerPos = Vector(xCenter, yCenter)
-	offsetPos = centerPos - playerPos
+function World:draw(pid)
+	World:calculateOffset(pid)
 	
 	World:drawBackground()
 	World:drawDrinks()
 	World:drawPlayers()
 	World:drawHUD(pid)
+end
+
+function World:calculateOffset(pid)
+	-- We want to center the player and move everything, so calculate offset
+	local player = self.players[pid]
+	local playerPos = player.pos
+	local yCenter = math.floor(self.height / (GRID_SIZE * 2))
+	local xCenter = math.floor(self.width / (GRID_SIZE * 2))
+	local centerPos = Vector(xCenter, yCenter)
+	offsetPos = (centerPos - playerPos) * Vector(GRID_SIZE, GRID_SIZE)
+
+	-- if player.action == "move" then
+	-- 	local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * player.moveTime, GRID_SIZE * player.moveTime)
+	-- 	offsetPos = offsetPos + posDiff
+	-- end
 end
 
 function World:drawBackground()
@@ -86,7 +121,7 @@ function World:drawBackground()
 					love.graphics.setColor(0, 0, 255, 255)
 				end
 
-				love.graphics.rectangle("fill", (x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (y+offsetPos.y)*GRID_SIZE-GRID_SIZE, GRID_SIZE, GRID_SIZE)
+				love.graphics.rectangle("fill", x*GRID_SIZE+offsetPos.x-GRID_SIZE, y*GRID_SIZE+offsetPos.y-GRID_SIZE, GRID_SIZE, GRID_SIZE)
 			end
 		end
 	end
@@ -105,7 +140,7 @@ end
 
 function World:drawDrink(type, pos, offset)
 	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
-	love.graphics.draw(drinkImage, (pos.x+offset.x)*GRID_SIZE-GRID_SIZE, (pos.y+offset.y)*GRID_SIZE-GRID_SIZE)
+	love.graphics.draw(drinkImage, pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
 end
 
 function World:drawPlayers()
@@ -113,10 +148,18 @@ function World:drawPlayers()
 	--love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
 		local pos = player.pos
-		if pos then
+		finalPos = Vector(pos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, pos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
+
+		if player.action == 'move' then
+			local posDiff = (player.pos - player.oldPos) * Vector(GRID_SIZE * player.moveTime, GRID_SIZE * player.moveTime)
+			finalPos = Vector(player.oldPos.x*GRID_SIZE+offsetPos.x-GRID_SIZE, player.oldPos.y*GRID_SIZE+offsetPos.y-GRID_SIZE)
+			finalPos = finalPos + posDiff
+		end
+
+		if finalPos then
 			--love.graphics.rectangle("fill", pos.x*GRID_SIZE-GRID_SIZE, pos.y*GRID_SIZE-GRID_SIZE, PSIZE.x, PSIZE.y)
 			love.graphics.reset()
-			self.players[id].pAnim:draw((pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+			self.players[id].pAnim:draw(finalPos.x, finalPos.y)
 		end
 	end	
 end
@@ -157,7 +200,6 @@ function World:drawHUD(pid)
 end
 
 function World:setPlayer(id, pos, dir, action)
-	-- TODO: Check if colliding into something locally
 	local can_move = true
 
 	if not self.players[id] then
@@ -194,6 +236,10 @@ function World:setPlayer(id, pos, dir, action)
 	self.players[id].action = action or 'stand'
 
 	if can_move then
+		if action == 'move' then
+			self.players[id].oldPos = self.players[id].pos
+		end
+
 		self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
 	end
 
@@ -214,6 +260,10 @@ end
 
 function World:getPlayerBAC(id)
 	return self.players[id].bac
+end
+
+function World:isPlayerMoving(id)
+	return self.players[id].moveTime ~= nil
 end
 
 function World:drawInventory(dtype, x, y)
