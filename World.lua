@@ -8,7 +8,7 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
-local DRINK_CONTENT = {5, 5, 20, 15, 15, 10}
+local DRINK_CONTENT = {7, 7, 21, 14, 14, 10}
 local DRINK_TYPE_SIZE = 6
 local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/beerGreen.png',
@@ -21,6 +21,12 @@ local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
 							'Assets/Profile/portraitTipsy.png',
 							'Assets/Profile/portraitDrunk.png'}
+
+-- status colours
+local BACKGROUND_GREEN = {154,205,50,255}
+local STATUS_YELLOW = {225,225,0,255}
+local STATUS_GREEN = {34,139,34,255}
+local STATUS_RED = {220,20,60, 255}
 
 function World:start(width, height)
 	self.width = width;
@@ -53,7 +59,7 @@ function World:update(dt)
 		p.pAnim:update(p.dir, p.action, dt)
 
 
-		player.bac = player.bac - 0.1
+		player.bac = player.bac - 0.07
 		if player.bac < 0 then 
 			player.bac = 0 
 		end
@@ -168,6 +174,8 @@ function World:drawHUD(pid)
 	-- Status
 	love.graphics.setColor(154,205,50,255)
 	love.graphics.rectangle("fill", 0, self.height - 92, self.width , 92)
+	love.graphics.setColor(0,0,0,255)
+	love.graphics.print("Drunk-o-meter",self.width*5/8, (self.height - 80)+(92/2), 0, 2, 2)
 
 	-- profile place holder
 	love.graphics.reset()
@@ -195,6 +203,25 @@ function World:drawHUD(pid)
 	if rightHand > 0 then
 		local rightInvImage = love.graphics.newImage(DRINK_FILE_NAME[rightHand])
 		love.graphics.draw(rightInvImage, 155, self.height - 88)
+	end
+
+	-- Drunk-o-meter
+	love.graphics.setColor(0,0,0,255)
+	love.graphics.rectangle("fill", self.width/2, self.height - 88, self.width/2-4 , 92/2 )
+	love.graphics.setColor(255,255,255,255)
+	love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, (self.width/2)-8 , (92/2)-8)
+
+	if playerBAC > 50 then 
+		if playerBAC < 100 then
+			love.graphics.setColor(STATUS_GREEN)
+			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100 , (92/2)-8)
+		else 
+			love.graphics.setColor(STATUS_RED)
+			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, (self.width/2)-8 , (92/2)-8)
+		end
+	else
+		love.graphics.setColor(STATUS_YELLOW)
+		love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100, (92/2)-8)
 	end
 
 end
