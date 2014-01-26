@@ -170,6 +170,11 @@ function ClientGame:key(key, action)
 		assert(false, "This is an intentional crash you get by hitting 'R'")
 	end
 	--]]
+	---[[ NOTE: This is also for testing
+	if key == "p" and action == "p" then
+		World:addToPlayerBAC(self.id, 10)
+	end
+	--]]
 end
 
 function ClientGame:isNextToJukeBox(pos, dir)

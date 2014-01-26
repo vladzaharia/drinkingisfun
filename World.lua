@@ -405,6 +405,10 @@ function World:getPlayerBAC(id)
 	return self.players[id].bac
 end
 
+function World:addToPlayerBAC(id, amt)
+	self.players[id].bac = self.players[id].bac + amt
+end
+
 function World:isPlayerMoving(id)
 	return self.players[id].moveTime ~= nil
 end
