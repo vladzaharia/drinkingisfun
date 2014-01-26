@@ -270,6 +270,7 @@ function ClientGame:handleMessage(data)
 	elseif data:match("iceNote ") then
 		local bac = data:match("iceNote (%S+)")
 		World:addToPlayerBAC(self.id, bac)
+		World:setHit(true, self.id)
 		sManager:hit()
 	elseif data:match("iceRes") then
 		World:playerDropItem(self.id)
