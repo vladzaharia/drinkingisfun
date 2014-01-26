@@ -5,11 +5,13 @@ local ClientGame = {}
 local socket 			= require("socket")
 local World 			= require("World")
 
+local HEARTBEAT_DELAY = 1
 
 function ClientGame:start(args)
 	self.id = args.id
 	self.udp = args.udp
 	self.moving = false
+	self.timeSinceLastHeartbeat = 0
 	
 	World:start(love.window.getWidth(), love.window.getHeight())
 	World:setPlayer(args.id, args.pos, 'down')
@@ -51,6 +53,14 @@ function ClientGame:update(dt)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 	end
+
+	-- Track how long it's been since our last heartbeat and send one if it has passed some threshold
+	self.timeSinceLastHeartbeat = self.timeSinceLastHeartbeat + dt
+	if self.timeSinceLastHeartbeat > HEARTBEAT_DELAY then
+		local result, err = self.udp:send("hrt")
+		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+			(err or "none"))
+	end
 end
 
 function ClientGame:draw()
@@ -77,6 +87,11 @@ function ClientGame:key(key, action)
 			ClientGame:updatePos(curPos, curDir,'drink')
 			World:consumeDrink(self.id)
 		end
+	end
+
+	-- NOTE: This is for testing purposes 
+	if key == "r" then
+		assert(false, "This is an intentional crash you get by hitting 'R'")
 	end
 end
 

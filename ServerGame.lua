@@ -2,6 +2,7 @@
 local ServerGame = {}
 
 local socket 			= require("socket")
+local DisconnectManager	= require("DisconnectManager")
 
 
 function ServerGame:start()
@@ -32,12 +33,12 @@ function ServerGame:update(dt)
 	assert(ip_or_msg=="timeout", "Unexpected network error, msg=" .. ip_or_msg)
 	
 	-- Server now needs to send out world updates to clients
-	for id, client in pairs(self.clients) do
-		local ip, port = self:getClientContact(id)
+	for desc, client in pairs(self.clients) do
+		local ip, port = self:getClientContact(desc)
 		local msg = "upd "
 		local send = false
-		for other_id, other_client in pairs(self.clients) do 
-			if other_id ~= id then
+		for other_desc, other_client in pairs(self.clients) do 
+			if other_desc ~= desc then
 				msg = msg .. other_client.id .. " " .. other_client.pos .. " " .. other_client.dir .. ";"
 				send = true
 			end
@@ -46,6 +47,13 @@ function ServerGame:update(dt)
 			self.udp:sendto(msg, ip, tonumber(port))
 		end
 	end
+
+	-- Check if any of our clients have timed out and remove them from the game
+	DisconnectManager:update(dt)
+	for client_desc in DisconnectManager:timedOutPeers() do
+		self:removePlayer(client_desc)
+	end
+	DisconnectManager:disconnectedTimedOutPeers()
 end
 
 function ServerGame:draw()
@@ -55,8 +63,8 @@ function ServerGame:draw()
 	-- Print a list of clients
 	love.graphics.print("Client list:", 10, 30)
 	local y = 50
-	for id,client in pairs(self.clients) do
-		love.graphics.print(id .. " - Position (" .. client.pos .. ")", 10, y)
+	for desc,client in pairs(self.clients) do
+		love.graphics.print(desc .. " - Position (" .. client.pos .. ")", 10, y)
 		y = y + 20
 	end
 
@@ -75,12 +83,15 @@ function ServerGame:mouse(key, action)
 end
 
 function ServerGame:handleMessage(ip, port, data)
+	local desc = self:getClientDesc(ip, port)
+	-- Track that we received a message from a client
+	DisconnectManager:reachedPeer(desc)
+
 	if data == "reg" then
 		print("Connected ip=" .. ip .. " port=" .. port)
-		local id = self:getClientId(ip, port)
-		assert(self.clients[id] == nil, "Already connected: " .. id)
+		assert(self.clients[desc] == nil, "Already connected: " .. desc)
 		local client = self:newClient()
-		self.clients[ id ] = client
+		self.clients[ desc ] = client
 		-- Send response
 		local result, err = self.udp:sendto("regd " .. client.id .. " " .. 
 			client.pos, ip, port)
@@ -88,46 +99,35 @@ function ServerGame:handleMessage(ip, port, data)
 			(err or "none"))
 	elseif data == "dis" then
 		print("Disconnected ip=" .. ip .. " port=" .. port)
-		local id = self:getClientId(ip, port)
-		assert(self.clients[id], "Not a valid client: " .. id)
-		local client = self.clients[id]
-		-- Clear it out of the server's table
-		self.clients[ id ] = nil
-		-- Notify other clients of the removal of a player
-		for other_id, _ in pairs(self.clients) do
-			local nip, nport = self:getClientContact(other_id)
-			local result, err = self.udp:sendto("dis " .. client.id, nip, nport)
-			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
-				(err or "none"))
-		end
+		assert(self.clients[desc], "Not a valid client: " .. desc)
+		self:removePlayer(desc)
 	elseif data:match("upd ") then
-		local id = self:getClientId(ip, port)
-		local client = self.clients[id]
+		local client = self.clients[desc]
 		local id,vec,dir = data:match("upd (%w+) (%S+,%S+) (%a*)")
 		assert(tonumber(id) == client.id, "Bad client id for this client")
 		client.pos = Vector.fromstring(vec)
 		client.dir = dir
 	elseif data:match("req ") then
-		local id = self:getClientId(ip, port)
-		local client = self.clients[id]
+		local client = self.clients[desc]
 		local id,vec,dir = data:match("req (%w+) (%S+,%S+) (%a*)")
 		assert(tonumber(id) == client.id, "Bad client id for this client")
 		client.pos = Vector.fromstring(vec)
 		client.dir = dir
 		local result, err = self.udp:sendto("acc " .. client.pos .. " " .. client.dir, ip, port)
-			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
-				(err or "none"))
+		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. (err or "none"))
+	elseif data:match("hrt") then
+		-- This is just the heartbeat for the client connection, do nothing
 	else
 		assert(false, "Bad message: " .. data)
 	end
 end
 
-function ServerGame:getClientId(ip, port)
+function ServerGame:getClientDesc(ip, port)
 	return ip .. (":" .. port)
 end
 
-function ServerGame:getClientContact(id)
-	return id:match("(%S+):(%S+)")
+function ServerGame:getClientContact(desc)
+	return desc:match("(%S+):(%S+)")
 end
 
 function ServerGame:newClient() 
@@ -136,5 +136,17 @@ function ServerGame:newClient()
 	return client
 end
 
+function ServerGame:removePlayer(desc)
+	local client = self.clients[desc]
+	-- Clear it out of the server's table
+	self.clients[ desc ] = nil
+	-- Notify other clients of the removal of a player
+	for other_desc, _ in pairs(self.clients) do
+		local nip, nport = self:getClientContact(other_desc)
+		local result, err = self.udp:sendto("dis " .. client.id, nip, nport)
+		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+			(err or "none"))
+	end
+end
 
 return ServerGame
