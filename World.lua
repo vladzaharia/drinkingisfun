@@ -8,7 +8,7 @@ local PSIZE = Vector(GRID_SIZE, GRID_SIZE)
 
 -- Types of drinks
 local DRINK_TYPE = {1, 2, 3, 4, 5, 6}
-local DRINK_CONTENT = {7, 7, 21, 14, 14, 10}
+local DRINK_CONTENT = {6, 6, 20, 15, 15, 10}
 local DRINK_TYPE_SIZE = 6
 local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/beerGreen.png',
@@ -16,6 +16,10 @@ local DRINK_FILE_NAME = {'Assets/drinks/beerBrown.png',
 						 'Assets/drinks/shotJello.png',
 						 'Assets/drinks/shotTequila.png',
 						 'Assets/drinks/wine.png'}
+
+-- BAC thresholds
+local BAC_THRESHOLD = {30, 70}
+local BAC_DECAY_RATE = {0.05, 0.07, 0.12}
 
 -- Types of profiles
 local PROFILE_FILE_NAME = {	'Assets/Profile/portraitSober.png',
@@ -50,17 +54,13 @@ function World:stop()
 end
 
 function World:update(dt)
-	-- check for item to pickup, item currently goes into the abyss
 	for id, player in pairs(self.players) do
+		--check for items to pickup
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
 		p.pAnim:update(p.dir, p.action, dt)
 
-
-		player.bac = player.bac - 0.07
-		if player.bac < 0 then 
-			player.bac = 0 
-		end
+		World:decayBAC(id)
 	end
 
 	--spawn drink
@@ -69,6 +69,30 @@ function World:update(dt)
 		World:spawnDrink()
 	end
 end
+
+function World:decayBAC(id)
+	local pbac = self.players[id].bac
+
+	--please enjoy responsibly
+	if pbac > 100 then
+		return
+	end
+
+	if pbac > BAC_THRESHOLD[1] then
+		if pbac < BAC_THRESHOLD[2] then
+			self.players[id].bac = pbac - BAC_DECAY_RATE[2]
+		else
+			self.players[id].bac = pbac - BAC_DECAY_RATE[3]
+		end
+	else
+		self.players[id].bac = pbac - BAC_DECAY_RATE[1]
+	end
+
+	if self.players[id].bac < 0 then
+		self.players[id].bac = 0
+	end
+end
+
 
 function World:draw(playerPos, pid)
 	-- We want to center the player and move everything, so calculate offset
@@ -138,8 +162,8 @@ function World:drawHUD(pid)
 	love.graphics.reset()
 	local profileImage = love.graphics.newImage(PROFILE_FILE_NAME[1])
 	local playerBAC = World:getPlayerBAC(pid)
-	if playerBAC > 50 then 
-		if playerBAC < 100 then
+	if playerBAC > BAC_THRESHOLD[1] then 
+		if playerBAC < BAC_THRESHOLD[2] then
 			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[2])
 		else 
 			profileImage = love.graphics.newImage(PROFILE_FILE_NAME[3])
@@ -168,13 +192,13 @@ function World:drawHUD(pid)
 	love.graphics.setColor(255,255,255,255)
 	love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, (self.width/2)-8 , (92/2)-8)
 
-	if playerBAC > 50 then 
-		if playerBAC < 100 then
+	if playerBAC > BAC_THRESHOLD[1] then 
+		if playerBAC < BAC_THRESHOLD[2] then
 			love.graphics.setColor(STATUS_GREEN)
 			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100 , (92/2)-8)
 		else 
 			love.graphics.setColor(STATUS_RED)
-			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, (self.width/2)-8 , (92/2)-8)
+			love.graphics.rectangle("fill", (self.width/2)+4, self.height - 84, ((self.width/2)-8)*playerBAC/100 , (92/2)-8)
 		end
 	else
 		love.graphics.setColor(STATUS_YELLOW)
@@ -188,7 +212,11 @@ function World:setPlayer(id, pos, dir, action)
 	local can_move = true
 
 	if not self.players[id] then
-		self.players[id] = {leftHand = 0, rightHand = 0, bac = 0}
+		self.players[id] = {leftHand = 0, 
+							rightHand = 0, 
+							bac = 30, 
+							score = 0,
+							loser = false}
 	end
 
 	if not self.players[id].pAnim then
