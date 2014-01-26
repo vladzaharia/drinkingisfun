@@ -138,6 +138,10 @@ function World:setPlayer(id, pos, dir, action)
 	return self.players[id].pos
 end
 
+function World:removePlayer(id)
+	self.players[id] = nil
+end
+
 function World:getPlayerPosition(id)
 	return self.players[id].pos
 end

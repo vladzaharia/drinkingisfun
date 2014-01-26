@@ -98,14 +98,18 @@ end
 function ClientGame:handleMessage(data)
 	if data:match("upd ") then
 		for str in data:sub(5,-1):gmatch("[^;]+") do
-			print(str)
 			local id, pos = str:match("(%w+) (%S+,%S+)")
-			print(pos)
+			id = tonumber(id)
 			pos = Vector.fromstring(pos)
 			assert(id ~= self.id, "got update for self which is nonsense")
 			local newPos = World:setPlayer(id, pos)
 			assert(newPos == pos, "failed updated position")
 		end
+	elseif data:match("dis ") then
+		local id = data:match("dis (%w+)")
+		id = tonumber(id)
+		assert(id ~= self.id, "got message to remove self from world")
+		World:removePlayer(id)
 	else
 		assert(false, "Bad message: " .. data)
 	end

@@ -33,7 +33,7 @@ function ServerGame:update(dt)
 	
 	-- Server now needs to send out world updates to clients
 	for id, client in pairs(self.clients) do
-		local ip, port = id:match("(%S+):(%S+)")
+		local ip, port = self:getClientContact(id)
 		local msg = "upd "
 		local send = false
 		for other_id, other_client in pairs(self.clients) do 
@@ -90,9 +90,16 @@ function ServerGame:handleMessage(ip, port, data)
 		print("Disconnected ip=" .. ip .. " port=" .. port)
 		local id = self:getClientId(ip, port)
 		assert(self.clients[id], "Not a valid client: " .. id)
-		-- TODO: The actual logic for this will require removing the player from
-		-- the world and notifying other clients of this
+		local client = self.clients[id]
+		-- Clear it out of the server's table
 		self.clients[ id ] = nil
+		-- Notify other clients of the removal of a player
+		for other_id, _ in pairs(self.clients) do
+			local nip, nport = self:getClientContact(other_id)
+			local result, err = self.udp:sendto("dis " .. client.id, nip, nport)
+			assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+				(err or "none"))
+		end
 	elseif data:match("upd ") then
 		local id = self:getClientId(ip, port)
 		local client = self.clients[id]
@@ -106,6 +113,10 @@ end
 
 function ServerGame:getClientId(ip, port)
 	return ip .. (":" .. port)
+end
+
+function ServerGame:getClientContact(id)
+	return id:match("(%S+):(%S+)")
 end
 
 function ServerGame:newClient() 

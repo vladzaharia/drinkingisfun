@@ -5,6 +5,7 @@ io.stdout:setvbuf("no")
 -- Globals - available in all scripts without require
 Keys						= require("Keys")
 Vector						= require("Vector")
+inspect						= require("inspect")
 GRID_SIZE = 57
 SERVER_PORT = 12345
 SYNC_INTERVAL = 0.1
