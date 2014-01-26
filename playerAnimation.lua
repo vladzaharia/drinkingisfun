@@ -56,6 +56,23 @@ function playerAnimation:init()
 	local anim10 = newAnimation(lDrink, 57, 57, 0.1, 0)
 	anim10:setMode("bounce")
 
+	-- Swim Animations
+	local uSwim = love.graphics.newImage("Assets/Red/playerUSwim.png")
+	local anim11 = newAnimation(uSwim, 57, 57, 0.1, 0)
+	anim11:setMode("loop")
+
+	local dSwim = love.graphics.newImage("Assets/Red/playerDSwim.png")
+	local anim12 = newAnimation(dSwim, 57, 57, 0.1, 0)
+	anim12:setMode("loop")
+
+	local lSwim = love.graphics.newImage("Assets/Red/playerLSwim.png")
+	local anim13 = newAnimation(lSwim, 57, 57, 0.1, 0)
+	anim13:setMode("loop")
+
+	local rSwim = love.graphics.newImage("Assets/Red/playerRSwim.png")
+	local anim14 = newAnimation(rSwim, 57, 57, 0.1, 0)
+	anim14:setMode("loop")
+
 	-- Add them into the animation table
 	table.insert(self.animations,anim1)
 	table.insert(self.animations,anim2)
@@ -67,6 +84,10 @@ function playerAnimation:init()
 	table.insert(self.animations,anim8)
 	table.insert(self.animations,anim9)
 	table.insert(self.animations,anim10)
+	table.insert(self.animations,anim11)
+	table.insert(self.animations,anim12)
+	table.insert(self.animations,anim13)
+	table.insert(self.animations,anim14)
 
 end
 
@@ -98,6 +119,16 @@ function playerAnimation:update(direction, action, dt)
 			self.index = 7
 		elseif direction == 'right' then
 			self.index = 8
+		end
+	elseif action == 'swim' then
+		if direction == 'up' then
+			self.index = 11
+		elseif direction == 'down' then
+			self.index = 12
+		elseif direction == 'left' then
+			self.index = 13
+		elseif direction == 'right' then
+			self.index = 14
 		end
 	end 
 	self.animations[self.index]:update(dt)

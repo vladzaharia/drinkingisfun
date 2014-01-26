@@ -13,6 +13,8 @@ extern bool bloomStatus;
 const vec3 cXaxis = vec3(1.0, 0.0, 0.0);
 const vec3 cYaxis = vec3(0.0, 1.0, 0.0);
 
+const float blurSize = 1.0/1024.0;
+
 const float cStrength = 0.005;
 // -- speed of the 'wave' effect
 float sStrength = 1;
@@ -71,5 +73,24 @@ vec4 effect(vec4 colour, Image tex, vec2 tc, vec2 sc)
       }
     }
   }
-   return (((sum / (samples * samples)) + source) * sin(cScale) * colour) + source;
+
+
+  vec4 blurSum = vec4(0.0);
+
+  // blur in y (vertical)
+
+  blurSum += Texel(tex, vec2(tc.x,tc.y - 4.0 * blurSize)) * 0.05;
+  blurSum += Texel(tex, vec2(tc.x,tc.y - 3.0 * blurSize)) * 0.09;
+  blurSum += Texel(tex, vec2(tc.x,tc.y - 2.0 * blurSize)) * 0.12;
+  blurSum += Texel(tex, vec2(tc.x,tc.y - blurSize)) * 0.15;
+  blurSum += Texel(tex, vec2(tc.x,tc.y )) * 0.16;
+  blurSum += Texel(tex, vec2(tc.x,tc.y + blurSize)) * 0.15;
+  blurSum += Texel(tex, vec2(tc.x,tc.y + 2.0 * blurSize)) * 0.12;
+  blurSum += Texel(tex, vec2(tc.x,tc.y + 3.0 * blurSize)) * 0.09;
+  blurSum += Texel(tex, vec2(tc.x,tc.y + 4.0 * blurSize)) * 0.05;
+
+  
+
+  return (((sum / (samples * samples)) + source) * sin(cScale) * colour) + source;
+  //return (((sum / (samples * samples)) + source) * sin(cScale) * colour) + blurSum;
 }
