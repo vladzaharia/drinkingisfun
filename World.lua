@@ -59,6 +59,11 @@ function World:update(dt)
 	-- check for item to pickup, item currently goes into the abyss
 	-- also stop drinking
 	-- also update bac
+	-- Game over? End game
+	if not self.players then
+		return
+	end
+
 	for id, player in pairs(self.players) do
 		World:pickUp(id, self.players[id].pos)
 		local p = self.players[id]
@@ -155,6 +160,7 @@ end
 function World:draw(pid)
 	if self.players[pid].loser == true then
 		World:drawGameOver()
+
 		return
 	end
 
@@ -220,6 +226,8 @@ end
 
 function World:drawGameOver()
 	love.graphics.draw(Assets:getGameOverImage())
+	sManager:stopMusic()
+	sManager:startGameOverMusic()
 end
 
 function World:drawPlayers()
@@ -377,6 +385,10 @@ end
 
 function World:isPlayerMoving(id)
 	return self.players[id].moveTime ~= nil
+end
+
+function World:isPlayerLoser(id)
+	return self.players[id].loser
 end
 
 function World:drawInventory(dtype, x, y)

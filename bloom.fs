@@ -1,7 +1,7 @@
 // adapted from http://www.youtube.com/watch?v=qNM0k522R7o
  
 extern vec2 size;
-extern int samples = 10; // pixels per axis; higher = bigger glow, worse performance
+extern int samples = 1; // pixels per axis; higher = bigger glow, worse performance
 extern float quality = 2.5; // lower = smaller glow, better quality
 extern float BAC;
  
