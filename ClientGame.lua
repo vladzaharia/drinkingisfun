@@ -66,7 +66,7 @@ end
 function ClientGame:draw()
 	World:draw(self.id)
 	--bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
-	score = tonumber(string.format("%.1f", World:getPlayerScore(self.id)))
+	local score = tonumber(string.format("%.1f", World:getPlayerScore(self.id)))
 	love.graphics.setColor(0,0,0,255)
 	love.graphics.print("Points: " .. score, 100, 580)
 
@@ -77,6 +77,7 @@ function ClientGame:key(key, action)
 		local curPos = World:getPlayerPosition(self.id)
 		local curDir = World:getPlayerDirection(self.id)
 		-- stumble walking
+		local bac = World:getPlayerBAC(self.id)
 		if bac >= 75 then	
 			if key == Keys.Up then
 				if ((math.random() >= 0.7) and (math.random() <= 0.8)) then
