@@ -191,6 +191,7 @@ function ServerGame:tableSize(tabl)
 end
 
 function ServerGame:removePlayer(desc)
+	DisconnectManager:disconnectedPeer(desc)
 	local client = self.clients[desc]
 	-- Clear it out of the server's table
 	self.clients[ desc ] = nil
