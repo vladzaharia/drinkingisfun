@@ -78,15 +78,17 @@ function ClientGame:key(key, action)
 end
 
 function ClientGame:updatePos(newPos, dir, action)
-	-- TODO: This function should send a message to server to update it
-	self.moving = true
-	local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
-	local result, err = self.udp:send(msg)
-	assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
-		(err or "none"))
+	if action ~= "drink" then
+		self.moving = true
+		local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
+		local result, err = self.udp:send(msg)
+		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
+			(err or "none"))
 
-	World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
-
+		World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
+	else 
+		World:setPlayer(self.id, newPos, dir, "drink")
+	end
 end
 
 function ClientGame:mousePos(x,y)
