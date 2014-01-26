@@ -63,6 +63,13 @@ function World:draw(playerPos, pid)
 	local centerPos = Vector(xCenter, yCenter)
 	offsetPos = centerPos - playerPos
 	
+	World:drawBackground()
+	World:drawDrinks()
+	World:drawPlayers()
+	World:drawHUD(pid)
+end
+
+function World:drawBackground()
 	-- Draw the world
 	for y, row in pairs(self.world) do
 		for x, item in pairs(row) do
@@ -75,7 +82,9 @@ function World:draw(playerPos, pid)
 			end
 		end
 	end
+end
 
+function World:drawDrinks()
 	-- Drinks
 	love.graphics.reset()
 	for id, drink in pairs(self.drinks) do
@@ -84,7 +93,14 @@ function World:draw(playerPos, pid)
 		--local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[drink.type])
 		--love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 	end
+end
 
+function World:drawDrink(type, pos, offset)
+	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
+	love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
+end
+
+function World:drawPlayers()
 	-- Players
 	--love.graphics.setColor(255, 0, 0, 255)
 	for id, player in pairs(self.players) do
@@ -95,7 +111,9 @@ function World:draw(playerPos, pid)
 			self.players[id].pAnim:draw((pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 		end
 	end	
+end
 
+function World:drawHUD(pid)
 	-- Status
 	love.graphics.setColor(154,205,50,255)
 	love.graphics.rectangle("fill", 0, self.height - 92, self.width , 92)
@@ -174,11 +192,6 @@ end
 
 function World:getPlayerDirection(id)
 	return self.players[id].dir
-end
-
-function World:drawDrink(type, pos, offset)
-	local drinkImage = love.graphics.newImage(DRINK_FILE_NAME[type])
-	love.graphics.draw(drinkImage, (pos.x+offsetPos.x)*GRID_SIZE-GRID_SIZE, (pos.y+offsetPos.y)*GRID_SIZE-GRID_SIZE)
 end
 
 function World:drawInventory(dtype, x, y)

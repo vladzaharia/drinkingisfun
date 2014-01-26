@@ -79,12 +79,14 @@ end
 
 function ClientGame:updatePos(newPos, dir, action)
 	if action ~= "drink" then
+		-- request the move from the server
 		self.moving = true
 		local msg = "req " .. self.id .. " " .. newPos .. " " .. dir
 		local result, err = self.udp:send(msg)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
 
+		-- same position, but walking now
 		World:setPlayer(self.id, World:getPlayerPosition(self.id), dir, "walk")
 	else 
 		World:setPlayer(self.id, newPos, dir, "drink")
@@ -100,6 +102,8 @@ end
 
 function ClientGame:handleMessage(data)
 	if data:match("upd ") then
+		-- move all the other players
+		-- we'll need to smooth them out and make them "walk"
 		for str in data:sub(5,-1):gmatch("[^;]+") do
 			local id, pos, dir = str:match("(%w+) (%S+,%S+) (%a+)")
 			id = tonumber(id)
@@ -109,12 +113,14 @@ function ClientGame:handleMessage(data)
 			assert(newPos == pos, "failed updated position")
 		end
 	elseif data:match("dis ") then
+		-- remove a player from the game
 		local id = data:match("dis (%w+)")
 		id = tonumber(id)
 		assert(id ~= self.id, "got message to remove self from world")
 		World:removePlayer(id)
 	elseif data:match("acc ") then
-		-- handle player moving
+		-- server has accepted our position, actually move the player
+		-- we'll need to smooth this out somehow
 		local pos, dir = data:match("acc (%S+,%S+) (%a+)")
 		pos = Vector.fromstring(pos)
 		World:setPlayer(self.id, pos, dir, "stand")
