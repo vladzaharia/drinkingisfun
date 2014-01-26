@@ -75,7 +75,7 @@ function World:update(dt)
 		p.pAnim:update(p.dir, p.action, dt)
 
 		World:decayBAC(id)
-		World:addScore(id)
+		
 
 		if player.action == 'drink' then
 			if not player.drinkTime then
@@ -338,6 +338,8 @@ function World:setPlayer(id, pos, dir, action)
 							loser = false}
 	end
 
+	World:addScore(id)
+
 	if not self.players[id].pAnim then
 		self.players[id].pAnim = playerAnimation:new()
 		self.players[id].pAnim:init()
@@ -354,6 +356,11 @@ function World:setPlayer(id, pos, dir, action)
 	self.players[id].pos = pos or self.players[id].pos or Vector(0,0)
 
 	return self.players[id].pos
+
+end
+
+function World:setPlayerScore(id, scr)
+	self.players[id].score = scr
 end
 
 function World:isPossibleMove(pos)

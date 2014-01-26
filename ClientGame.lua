@@ -48,7 +48,8 @@ function ClientGame:update(dt)
 	if not self.moving then
 		local pos = World:getPlayerPosition(self.id)
 		local dir = World:getPlayerDirection(self.id)
-		local msg = "upd " .. self.id .. " " .. pos .. " " .. dir
+		local scr = World:getPlayerScore(self.id)
+		local msg = "upd " .. self.id .. " " .. pos .. " " .. dir .. " " .. scr
 		local result, err = self.udp:send(msg)
 		assert(result ~= nil, "Network error: result=" .. result .. " err=" .. 
 			(err or "none"))
@@ -205,14 +206,16 @@ function ClientGame:handleMessage(data)
 		-- move all the other players
 		-- we'll need to smooth them out and make them "walk"
 		for str in data:sub(5,-1):gmatch("[^;]+") do
-			local id, pos, dir = str:match("(%w+) (%S+,%S+) (%a+)")
+			local id, pos, dir, scr = str:match("(%w+) (%S+,%S+) (%a+) (%S+)")
 			id = tonumber(id)
+			scr = tonumber(scr)
 			pos = Vector.fromstring(pos)
 			assert(id ~= self.id, "got update for self which is nonsense")
 			local oldPos = World:getPlayerPosition(id)
 			if oldPos ~= pos then
 				newPos = World:setPlayer(id, pos, dir, "move")
 			end
+			World:setPlayerScore(id, scr)
 				
 			--assert(newPos == pos, "failed updated position")
 		end
