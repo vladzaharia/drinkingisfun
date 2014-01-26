@@ -356,6 +356,13 @@ function World:setPlayer(id, pos, dir, action)
 	return self.players[id].pos
 end
 
+function World:checkIfDrowned(id)
+	local pos = self.players[id].pos
+	if self.world[pos.y][pos.x] == "P" and self.players[id].bac > BAC_THRESHOLD[2] then
+		self.players[id].loser = true
+	end
+end
+
 function World:isPossibleMove(pos)
 	can_move = true
 
@@ -366,17 +373,8 @@ function World:isPossibleMove(pos)
 		end
 	end
 
-	for y, row in pairs(self.world) do
-		for x, item in pairs(row) do
-			if item then
-				if item == "W" then
-					if pos == Vector(x,y) then
-						can_move = false
-						break
-					end
-				end
-			end
-		end
+	if Map:getWorld()[pos.y][pos.x] == "W" then
+		can_move = false
 	end
 
 	return can_move
@@ -436,7 +434,7 @@ function World:spawnDrink()
 
 	while not freeSpace do
 		local randPos = self.world[newPos.y][newPos.x]
-		if randPos == 'W' or World:collideItem(newPos) then
+		if randPos == 'W' or randPos == 'P' or World:collideItem(newPos) then
 			newPos = World:randomPos()
 		else
 			freeSpace = true
