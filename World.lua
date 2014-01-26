@@ -173,7 +173,7 @@ end
 
 
 function World:draw(pid)
-	if self.players[pid].loser == true then
+	if self.players[pid].loser == true and not self.players[pid].moveTime then
 		World:drawGameOver()
 
 		return
