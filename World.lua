@@ -18,6 +18,8 @@ local DRINK_TYPE_SIZE = 6
 local BAC_THRESHOLD = {30, 70}
 local BAC_DECAY_RATE = {0.05, 0.07, 0.12}
 
+local SCORE_MULTIPLIER = {0.05, 0.1, 0.15}
+
 -- status colours
 local BACKGROUND_GREEN = {154,205,50,255}
 local STATUS_YELLOW = {225,225,0,255}
@@ -58,6 +60,7 @@ function World:update(dt)
 		p.pAnim:update(p.dir, p.action, dt)
 
 		World:decayBAC(id)
+		World:addScore(id)
 
 		if player.action == 'drink' then
 			if not player.drinkTime then
@@ -94,6 +97,7 @@ end
 
 function World:decayBAC(id)
 	local pbac = self.players[id].bac
+	local penalty = 0
 
 	--please enjoy responsibly
 	if pbac > 100 then
@@ -102,17 +106,43 @@ function World:decayBAC(id)
 
 	if pbac > BAC_THRESHOLD[1] then
 		if pbac < BAC_THRESHOLD[2] then
-			self.players[id].bac = pbac - BAC_DECAY_RATE[2]
+			penalty = BAC_DECAY_RATE[2]
 		else
-			self.players[id].bac = pbac - BAC_DECAY_RATE[3]
+			penalty = BAC_DECAY_RATE[3]
 		end
 	else
-		self.players[id].bac = pbac - BAC_DECAY_RATE[1]
+		penalty = BAC_DECAY_RATE[1]
 	end
 
-	if self.players[id].bac < 0 then
+	if (pbac - penalty) < 0 then
 		self.players[id].bac = 0
+	else
+		self.players[id].bac = pbac - penalty
 	end
+
+end
+
+function World:addScore(id)
+	-- rewarded for playing aggressive
+	local pbac = self.players[id].bac
+	local pscore = self.players[id].score
+	local bonus = pbac
+
+	if pbac > BAC_THRESHOLD[1] then
+		if pbac < BAC_THRESHOLD[2] then
+			bonus = bonus * SCORE_MULTIPLIER[2]
+		else
+			bonus = bonus * SCORE_MULTIPLIER[3]
+		end
+	else
+		bonus = bonus * SCORE_MULTIPLIER[1]
+	end
+
+	self.players[id].score = math.floor(pscore + bonus)
+end
+
+function World:getPlayerScore(id)
+	return self.players[id].score
 end
 
 function World:draw(pid)
@@ -218,6 +248,15 @@ function World:drawHUD(pid)
 
 	local rightInvImage = Assets:getRightHandImage(rightHand+1)
 	love.graphics.draw(rightInvImage, 155, self.height - 90)
+
+	--Scores! GOOOOAAAALLLLL
+	love.graphics.setColor(0,0,0,255)
+	local textHeight = self.height - 90
+	for id, player in pairs(self.players) do
+		local score = World:getPlayerScore(id)
+		love.graphics.print("Player" .. id .. ": " .. score, 225, textHeight)
+		textHeight = textHeight + 15
+	end
 
 	-- Drunk-o-meter
 	love.graphics.setColor(0,0,0,255)

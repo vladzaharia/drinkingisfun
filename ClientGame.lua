@@ -65,8 +65,10 @@ end
 
 function ClientGame:draw()
 	World:draw(self.id)
-	bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
-	love.graphics.print("Regret: " .. bac, 100, 580)
+	--bac = tonumber(string.format("%.2f", World:getPlayerBAC(self.id)))
+	score = tonumber(string.format("%.1f", World:getPlayerScore(self.id)))
+	love.graphics.setColor(0,0,0,255)
+	love.graphics.print("Points: " .. score, 100, 580)
 
 end
 
