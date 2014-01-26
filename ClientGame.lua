@@ -69,6 +69,7 @@ function ClientGame:draw()
 	local score = tonumber(string.format("%.1f", World:getPlayerScore(self.id)))
 	love.graphics.setColor(0,0,0,255)
 	love.graphics.print("Points: " .. score, 100, 580)
+	love.graphics.reset()
 
 end
 

@@ -152,10 +152,8 @@ end
 function World:draw(pid)
 	World:calculateOffset(pid)
 	
-	--if World:getPlayerBAC(pid) > 30 then
-		bloomShader:send("BAC", World:getPlayerBAC(pid)*0.003)
-		love.graphics.setShader(bloomShader)
-	--end
+	love.graphics.setShader(bloomShader)
+	bloomShader:send("BAC", World:getPlayerBAC(pid)*0.003)
 	World:drawBackground()
 	love.graphics.reset()
 	love.graphics.setShader()

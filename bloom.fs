@@ -20,11 +20,5 @@ vec4 effect(vec4 colour, Image tex, vec2 tc, vec2 sc)
       sum += Texel(tex, tc + offset);
     }
   }
-  
-  /* if(BAC < 20){
-    return ((sum / (samples * samples)) + source) * colour;
-  } else {
-    return ((sum / (samples * samples)) + source) * sin(BAC) * 0.023 * colour + vec4(10,10,10,0);
-  } */
-  return (((sum / (samples * samples)) + source) * sin(BAC) * colour) + source;
+   return (((sum / (samples * samples)) + source) * sin(BAC) * colour) + source;
 }
